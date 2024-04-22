@@ -1,6 +1,6 @@
-const category = require("../models/catogary");
+const category = require("../models/category");
 const Products = require("../models/product");
-const Brand = require("../models/Brand");
+
 const fs = require("fs");
 const path = require("path");
 
@@ -17,13 +17,14 @@ const loadProducts = async (req, res) => {
     const totalCatCount = await Products.countDocuments();
     const totalPages = Math.ceil(totalCatCount / limit);
 
-    const productsData = await Products.find({})
-      .populate("category")
+    const productsData = await Products.find().populate("category")
 
       .skip(skip)
       .limit(limit);
 
-    res.render("products", { currentPage: page, totalPages, productsData });
+    console.log(productsData);
+
+    res.render("product", { currentPage: page, totalPages, productsData });
   } catch (error) {
     console.log(error.message);
   }
@@ -35,9 +36,8 @@ const loadAddproduct = async (req, res) => {
   try {
     const listcategory = await category.find({ is_listed: true });
     // console.log("loadaddproduct");
-    const brands = await Brand.find();
 
-    res.render("productadd", { listcategory, brands });
+    res.render("addproduct", { listcategory,});
   } catch (error) {
     console.log(error.message);
   }
@@ -46,17 +46,34 @@ const loadAddproduct = async (req, res) => {
 // add producrts post
 
 const addProducts = async (req, res) => {
+
   try {
+
+    // console.log("hekk");
+
     let images = [];
+
     const image = req.files;
+    // console.log(req.files);
 
     image.forEach((file) => {
+
       images.push(file.filename);
+
     });
+
+    console.log(image);
 
     const currentDate = Date();
     const categories = await category.findOne({ name: req.body.category });
-    const brands = await Brand.findOne({ name: req.body.brand });
+
+    const offerPorice = Math.round((req.body.price / 100) * (100 - req.body.Discountprice));
+
+    console.log(categories + "aaa");
+  
+    // console.log(categories)
+    // console.log(req.body)
+    // console.log("product top")
 
     const product = Products.create({
       name: req.body.product,
@@ -64,14 +81,22 @@ const addProducts = async (req, res) => {
       stock: req.body.stock,
       category: categories._id,
       image: images,
-      brand: brands.name,
+      discount:req.body.Discountprice,
+      dis_price : offerPorice,
       description: req.body.description,
       createdAt: currentDate,
       status: req.body.radio,
     });
 
+    console.log("helo")
+
+    console.log(product+"hiii");
+
     res.redirect("/admin/products");
-  } catch (error) {}
+
+  } catch (error) {
+    console.log(error.message)
+  }
 };
 //show edit product edit
 
@@ -79,21 +104,30 @@ const loadeditProduct = async (req, res) => {
   try {
     const productId = req.query.id;
     const productsData = await Products.findById({ _id: productId });
-
+    console.log(productsData._id)
     res.render("productEdit", { productsData });
   } catch (error) {}
 };
 
 // product list
 const productStatus = async (req, res) => {
+
   try {
+
     const productId = req.query.id;
+
     const productStatus = await Products.findOne({ _id: productId });
+
     productStatus.status = !productStatus.status;
+
     productStatus.save();
+    
     res.send({ set: true });
+
   } catch (error) {
+
     throw error;
+
   }
 };
 
@@ -101,9 +135,12 @@ const productStatus = async (req, res) => {
 
 const editProduct = async (req, res) => {
 try {
-  
+  console.log("hiii edit product")
     const produt= await Products.findOne({_id:req.params.id});
     const {product,price,Discountprice,stock,description}=req.body
+
+console.log(product);
+
     let imag=[];
 
 
@@ -120,12 +157,15 @@ for (let i = 0; i < 3; i++) {
     }
 }
     produt.image=imag;
-    await Products.findOneAndUpdate({_id:req.params.id},{$set:{name:product,price:price,offer_price:Discountprice,stock:stock,description:description,image:imag}})
+
+    const offerPorice = Math.round((price / 100) * (100 - Discountprice));
+
+    await Products.findOneAndUpdate({_id:req.params.id},{$set:{name:product,price:price,discount:Discountprice,stock:stock,description:description,image:imag , dis_price : offerPorice}})
     produt.save()
-    // res.redirect('/admin/products')
+    res.redirect('/admin/products')
     
 } catch (error) {
-  
+  console.log(error.message)
 }
   
 };

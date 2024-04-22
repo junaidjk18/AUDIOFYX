@@ -15,59 +15,72 @@
                     
                 </ul>
                 <div class="tab-content">
-                    <div  id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2">
-                        <form action="/login" method="post">
+                  
+							<div class="tab-content">
+							    <div class="tab-pane show active" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2">
+									
+							    	<form action="/login" method="post" onsubmit="return validateForm()">
 
+										<p class="" id="msg" hidden><%= msg %></p>
+										
+							    		<div class="form-group">
+							    			<label for="singin-email-2">Username or email address *</label>
+							    			<input type="text" class="form-control" id="singin-email-2" name="email">
+											<p class="error-message text-danger" id="email-error"></p>
+							    		</div><!-- End .form-group -->
 
-                            <p id="msg" hidden><%= msg %></p>
+							    		<div class="form-group">
+							    			<label for="singin-password-2">Password *</label>
+							    			<input type="password" class="form-control" id="singin-password-2" name="password">
+											<p class="error-message text-danger " id="password-error"></p>
+							    		</div><!-- End .form-group -->
 
-                            <div class="form-group">
-                                <label for="singin-email-2">Username or email address *</label>
-                                <input type="text" class="form-control" id="singin-email-2" name="email" required>
-                            </div><!-- End .form-group -->
+							    		<div class="form-footer">
 
-                            <div class="form-group">
-                                <label for="singin-password-2">Password *</label>
-                                <input type="password" class="form-control" id="singin-password-2" name="password" required>
-                            </div><!-- End .form-group -->
+							    			<button type="submit" class="btn btn-outline-primary-2" id="login-btn">
 
-                            <div class="form-footer">
-                                <button type="submit" class="btn btn-outline-primary-2">
-                                    <span>LOG IN</span>
-                                    <i class="icon-long-arrow-right"></i>
-                                </button>
+			                					<span>LOGIN</span>
+			            						<i class="icon-long-arrow-right"></i>
+												
+			                				</button>
 
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="signin-remember-2">
-                                    <label class="custom-control-label" for="signin-remember-2">Remember Me</label>
-                                </div><!-- End .custom-checkbox -->
+			                				<!-- <div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input" id="signin-remember-2">
+												<label class="custom-control-label" for="signin-remember-2">Remember Me</label>
+											</div>End .custom-checkbox -->
 
-                                <a href="#" class="forgot-link">Forgot Your Password?</a>
-                            </div><!-- End .form-footer -->
-                        </form>
+											<a href="/forgotPass" class="forgot-link">Forgot Your Password?</a>
 
-                        <div>
-                            <a href="/register">Dont have an Account?</a>
-                        </div>
+							    		</div><!-- End .form-footer -->
 
-                        <div class="form-choice">
-                            <p class="text-center">or sign in with</p>
-                            <div class="row">
-                                <div class="col-sm-6">
-                                    <a href="#" class="btn btn-login btn-g">
-                                        <i class="icon-google"></i>
-                                        Login With Google
-                                    </a>
-                                </div><!-- End .col-6 -->
-                                <div class="col-sm-6">
-                                    <a href="#" class="btn btn-login btn-f">
-                                        <i class="icon-facebook-f"></i>
-                                        Login With Facebook
-                                    </a>
-                                </div><!-- End .col-6 -->
-                            </div><!-- End .row -->
-                        </div><!-- End .form-choice -->
-                    </div><!-- .End .tab-pane -->
+							    	</form>
+
+									<div class="text-center pb-1">
+
+										<a href="/register" class="text-success ">Don't have an account?</a>
+										
+									</div>
+
+							    	<div class="form-choice">
+
+								    	<p class="text-center">or sign in with</p>
+								    	<div class="row">
+								    		<div class="col-sm-6">
+								    			<a href="#" class="btn btn-login btn-g">
+								    				<i class="icon-google"></i>
+								    				Login With Google
+								    			</a>
+								    		</div><!-- End .col-6 -->
+								    		<div class="col-sm-6">
+								    			<a href="#" class="btn btn-login btn-f">
+								    				<i class="icon-facebook-f"></i>
+								    				Login With Facebook
+								    			</a>
+								    		</div><!-- End .col-6 -->
+								    	</div><!-- End .row -->
+							    	</div><!-- End .form-choice -->
+							    </div><!-- .End .tab-pane -->
+							</div><!-- End .tab-content -->
                     
                 </div><!-- End .tab-content -->
             </div><!-- End .form-tab -->
@@ -128,6 +141,49 @@
 
     })
 
+}
+
+function validateForm() {
+
+var email = document.getElementById("singin-email-2").value;
+var password = document.getElementById("singin-password-2").value;
+var valid = true;
+
+var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if (email.trim() === "") {
+
+    document.getElementById("email-error").innerText = "Email field is empty";
+    valid = false;
+
+} else if (!emailRegex.test(email)) {
+
+    document.getElementById("email-error").innerText = "Invalid email format";
+    valid = false;
+
+} else {
+
+    document.getElementById("email-error").innerText = "";
+    // document.getElementById("password-group").style.display = "block";
+    // document.getElementById("login-btn").innerText = "CONTINUE";
+}
+
+if (password.trim() === "") {
+
+    document.getElementById("password-error").innerText = "Password field is empty";
+    valid = false;
+
+} else if (password.length < 5) {
+
+    document.getElementById("password-error").innerText = "Password must be at least 5 characters";
+    valid = false;
+
+} else {
+
+    document.getElementById("password-error").innerText = "";
+}
+
+return valid;
 }
 
 </script>

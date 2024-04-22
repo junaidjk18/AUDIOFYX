@@ -1,39 +1,5 @@
 const category = require("../models/category");
 
-const Brand = require("../models/Brand");
-// add brand
-const addBrand = async (req, res) => {
-  try {
-    if (req.query.input) {
-      const brandData = await Brand.findOne({
-        name: { $regex: new RegExp("^" + req.query.input + "$", "i") },
-      });
-
-      if (brandData) {
-        res.send({ status: true });
-      } else {
-        res.send({ status: false });
-      }
-    } else if (req.query.name) {
-      const brandName = req.query.name.trim();
-
-      const brandData = new Brand({
-        name: brandName,
-      });
-
-      if (brandData) {
-        brandData.save();
-        res.send(true);
-      } else {
-        console.log("Brand Error");
-        res.send(false);
-      }
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
 // add category
 
 const addCategory = async (req, res) => {
@@ -115,5 +81,4 @@ module.exports = {
   addCategory,
   editCategory,
   categaryAction
-  // addBrand
 };

@@ -5,6 +5,14 @@ const Otp = require('../models/otpmodel')
 
 const nodemailer = require('nodemailer')
 
+// const product = require('../models/product')
+const category = require('../models/category')
+
+const cart = require('../models/cart')
+const product = require('../models/product')
+
+const Wallet = require('../models/wallet')
+
 
 const securePassword = async (password)=>{
     try {
@@ -16,10 +24,13 @@ const securePassword = async (password)=>{
 }
 
 const loadRegister = async(req,res)=>{
+
     try {
+        const categoryData = await category.find({is_listed: true})
+
         const error = req.flash('flash')
-        res.render('registration',{msg : error})
-        // console.log('bbdueujd')
+        res.render('registration',{msg : error ,categoryData})
+        
     } catch (error) {
         console.log(error.message);
     }
@@ -42,7 +53,7 @@ const insertUser = async(req,res)=>{
                     
         const user = new User({
 
-            username : req.body.name,
+            username : req.body.fullName,
             email : req.body.email,
             password : req.body.password,
             phone : req.body.phone,
@@ -53,10 +64,12 @@ const insertUser = async(req,res)=>{
         req.session.userSession = user
         const userData = req.session.userSession
 
+        console.log(userData + "ahyy");
+
         if(userData){
           
             const OTPP = generateOTP();
-            console.log(OTPP);
+            console.log('First OTP :-' + OTPP);
             sendotpmail(req.body.name,req.body.email,OTPP,res);
 
         }else{
@@ -75,9 +88,11 @@ const insertUser = async(req,res)=>{
 const loadotp = async(req,res)=>{
 
     try {
+        const categoryData = await category.find({is_listed: true})
 
         const emailQuery=req.query.email;
-        res.render('otp' , {emailQuery})
+        const msg = req.flash('flash')
+        res.render('otp' , {emailQuery , msgg : msg,categoryData})
 
     } catch (error) {
 
@@ -94,7 +109,7 @@ const verifyOtp=async(req,res)=>{
         const querymail=req.body.email
 
         const userSessionn = req.session.userSession;
-        console.log(req.session.userSession);
+        // console.log(req.session.userSession);
         const {inp1,inp2,inp3,inp4}=req.body
 
         const enterdOtp=`${inp1}${inp2}${inp3}${inp4}`
@@ -124,7 +139,7 @@ const verifyOtp=async(req,res)=>{
 
                 if(updating){
 
-                    res.redirect('/')
+                    res.redirect('/login')
 
                 }
 
@@ -136,7 +151,8 @@ const verifyOtp=async(req,res)=>{
         }
 
     }else{
-        console.log('otp not working');
+        req.flash('flash' , "Invalid OTP!!!")
+        res.redirect('/otp')
     }
 
     }catch(error){
@@ -216,7 +232,10 @@ const loadresendotp = async(req,res)=>{
         const userdata = req.query.email; //query mail
         const usersession = req.session.userSession  //session user data
 
-        if(usersession.email ==userdata)
+        console.log(usersession.email + "neee");
+        console.log(userdata + "njan");
+
+        if(usersession.email == userdata)
         {
             console.log("hai");
             const generatedOTP = generateOTP()
@@ -243,9 +262,10 @@ const loadresendotp = async(req,res)=>{
 
 const loadLogin = async(req,res)=>{
     try {
+        const categoryData = await category.find({is_listed: true})
         const error = req.flash('flash')
 
-        res.render('login' , {msg : error});
+        res.render('login' , {msg : error , login : req.session.user,categoryData});
 
     } catch (error) {
         console.log(error.message);
@@ -261,7 +281,7 @@ const verifyLogin = async(req,res)=>{
         const password = req.body.password
         
 
-        const userData = await User.findOne({email:newemail})
+        const userData = await User.findOne({email:newemail , is_Admin : false , is_blocked : false})
         
         if(userData)
 
@@ -275,7 +295,8 @@ const verifyLogin = async(req,res)=>{
             //  req.session.user_id = userData._id
             //  console.log('jjj');
             req.flash('flash' , "Login Successfully")
-             res.redirect('/login')
+            req.session.user = userData
+             res.redirect('/')
            }
            else{
             req.flash('flash','wrong password')
@@ -296,14 +317,15 @@ const verifyLogin = async(req,res)=>{
 
 const loadhome = async(req,res)=>{
     try {
-
+        const categoryData = await category.find({is_listed: true})
         if(req.session.user){
+           
 
-            res.render('home' , {login : req.session.user});
+            res.render('home' , {login : req.session.user,categoryData});
 
         } else {
 
-            res.render('home')
+            res.render('home',{categoryData})
 
         }
       
@@ -318,7 +340,8 @@ const loadhome = async(req,res)=>{
 
 const aboutus = async(req,res)=>{
     try {
-        res.render('about')
+        const categoryData = await category.find({is_listed: true})
+        res.render('about' , {login : req.session.user,categoryData})
     } catch (error) {
         
     }
@@ -328,7 +351,8 @@ const aboutus = async(req,res)=>{
 const contact = async(req,res)=>{
 
     try {
-        res.render('contact')
+        const categoryData = await category.find({is_listed: true})
+        res.render('contact' , {login : req.session.user,categoryData})
     } catch (error) {
         
     }
@@ -336,19 +360,258 @@ const contact = async(req,res)=>{
 
 const products = async(req,res)=>{
     try {
-        res.render('productDetails')
+
+        const producDataa = await product.find({status :true}).populate('category')
+        // console.log(producData);
+        const categoryData = await category.find({is_listed: true})
+
+        res.render('product' , {login : req.session.user, producData : producDataa,categoryData})
 
     } catch (error) {
-        
+        console.log(error.message);
     }
 }
 const catagory = async(req,res)=>{
     try {
-        res.render('catagory')
+        const categoryData = await category.find({is_listed: true})
+        console.log(categoryData);
+        res.render('catagory' , {login : req.session.user,categoryData})
     } catch (error) {
         
     }
 }
+
+const productDetails = async (req, res) => {
+    
+    try {
+
+        const id = req.query.id;
+
+        const categoryData = await category.find({ is_listed: true });      //  Category
+
+        const productData = await product.findOne({ _id: id });     //  Product
+        console.log(productData)
+        
+        if (req.session.user) {
+            
+            res.render("productDetails", { login: req.session.user , categoryData , productData});
+
+        } else {
+
+            res.render("productDetails", { categoryData , productData});
+
+        }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+}
+
+//  CartAction (Get Method) :-
+
+const cartAction = async (req, res) => {
+    
+    try {
+
+        if (req.session.user) {
+            
+            const userIdd = req.session.user._id;
+
+            const cartAcction = await cart.findOne({ userId: userIdd });
+
+            const val = cartAcction.product.length;
+
+            res.send({ success: val });
+
+        } else {
+
+            res.send({success : 0})
+
+        }
+       
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//  Search Product  :-
+
+const searchProduct = async (req, res) => {
+
+    try {
+      
+        const findProduct = req.body.items
+        
+        const searchedItem = await product.find({ name: { $regex: new RegExp(`.*${findProduct}.*`, 'i') } }).populate('category');  
+  
+        console.log(searchedItem)
+
+        res.send(searchedItem);
+    
+    } catch (error) {
+        
+        console.log(error.message);
+      
+    }
+  
+};
+
+const priceLowToHigh = async(req,res)=>{
+    try {
+        // console.log('ddddd');
+        const {status} = req.body
+
+        if(status)
+        {
+            const smallToHigh = await product.find({status : true}).sort({price : 1}).populate('category')
+
+            res.send(smallToHigh)
+        }
+        
+    } catch (error) {
+        console.log(error.message)
+    }
+}
+
+const priceHighToLow = async(req,res)=>{
+    try {
+        const {status} = req.body
+
+        if(status)
+        {
+            const HighToSmall = await product.find({status : true}).sort({price :-1}).populate('category')
+            res.send(HighToSmall)
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+//  Acending Order Product Name (PUT Method) :-
+
+const proNameSortAZ = async (req, res) => {
+    
+    try {
+
+        const { status } = req.body;
+
+        if (status) {
+            
+            const productSmallToHigh = await product.find({ status: true }).sort({ name: -1 }).populate('category');
+
+            res.send(productSmallToHigh);
+
+        }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//Decending order product name(PUT method)
+
+const proNameSortZA = async (req, res) => {
+    
+    try {
+
+        const { status } = req.body;
+
+        if (status) {
+            
+            const productSmallToHigh = await product.find({ status: true }).sort({ name: 1 }).populate('category');
+
+            res.send(productSmallToHigh);
+
+        }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+
+//  Price Filter (Put Metthod) :-
+
+const priceFilter = async (req, res) => {
+    
+    try {
+
+        const minn = req.body.min
+        const maxx = req.body.max
+
+        if (minn && maxx) {
+                
+            const productPrice = await product.find({ $and: [{ price: { $lt: Number(maxx) } }, { price: { $gt: Number(minn) } }] }).populate('category')
+
+            if (productPrice) {
+                
+                res.send({ success: productPrice });
+
+            } else {
+
+                res.send({fail : "failed"})
+
+            }
+
+        } else {
+
+            res.send({fail : "failed"})
+
+        }
+
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//  LoadWallet (Get Method) :-
+
+const loadWallet = async (req, res) => {
+    
+    try {
+
+        const categoryData = await category.find({ is_Listed: true });
+
+        if (req.session.user) {
+
+            const walletData = await Wallet.findOne({ userId: req.session.user._id });
+            console.log(walletData);
+
+            res.render('wallet', { login: req.session.user, categoryData, walletData });
+
+        } else {
+
+            res.redirect('/login')
+
+        }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+
+
+
+
 
 //function : generate otp
 const generateOTP = ()=>{
@@ -361,6 +624,16 @@ const generateOTP = ()=>{
     }
     return OTP
 }
+
+const logout = async(req,res)=>{
+    try {
+        req.session.destroy()
+        res.redirect('/')
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
 
 module.exports = {
     loadRegister,
@@ -375,5 +648,15 @@ module.exports = {
     products,
     catagory,
     contact,
-    loadresendotp
-} 
+    loadresendotp,
+    productDetails,
+    cartAction,
+    searchProduct,
+    priceLowToHigh,
+    priceHighToLow,
+    priceFilter,
+    proNameSortAZ,
+    proNameSortZA,
+    loadWallet,
+    logout
+}  

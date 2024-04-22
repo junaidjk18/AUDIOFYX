@@ -1,6 +1,4 @@
-const { Admin } = require('mongodb')
 const User = require ('../models/userModel')
-const Brand=require('../models/Brand');
 const category=require('../models/category');
 const bcrypt = require ('bcrypt')
 
@@ -15,20 +13,22 @@ const AdminLogin = async(req,res)=>{
 }
 
 const verifyAdmin = async (req,res)=>{
+
     try {
+
         const newemail = req.body.email
         const newpassword = req.body.password
-    
         const adminCheck = await User.findOne({email : newemail,is_Admin :true})
         // console.log(admin);
         
         if(adminCheck){
-            
+        
+
             const  passswordMatch = await bcrypt.compare(newpassword,adminCheck.password)
             
             if(passswordMatch){
         
-                    
+                    req.session.admin = adminCheck
             res.redirect('/admin/dashboard')
         }
         else{
@@ -102,7 +102,7 @@ const adminCategory = async (req, res) => {
         const limit = 5;
         const page = parseInt(req.query.page) || 1;
         const skip = (page - 1) * limit;
-        const brands = await Brand.find()
+
         const totalCatCount = await category.countDocuments();
         const totalPages = Math.ceil(totalCatCount / limit);
   
@@ -111,7 +111,7 @@ const adminCategory = async (req, res) => {
         .skip(skip)
         .limit(limit);
   
-        res.render("categary" , {category : categoryData ,  currentPage: page, totalPages ,brands});
+        res.render("categary" , {category : categoryData ,  currentPage: page, totalPages});
         
     } catch (error) {
         
@@ -129,7 +129,7 @@ const adminCategory = async (req, res) => {
 const userAction = async ( req, res) =>{
     
     try {
-        
+        console.log('hello')
         const userId =req.params.id
         //    const user=await User.findOne({_id:userId});
         //    user.is_blocked=!user.is_blocked;
@@ -157,6 +157,8 @@ const userAction = async ( req, res) =>{
 
 
 
+
+
 module.exports = {
     AdminLogin,
     verifyAdmin,
@@ -164,5 +166,5 @@ module.exports = {
     loadusers,
     userAction,
     adminLogout,
-    adminCategory
+    adminCategory,
 }

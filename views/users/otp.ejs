@@ -35,6 +35,7 @@
 									<form id="otpForm" action="/verifyotp" method="post">
 										<!-- Your form fields go here -->
 										
+										<p id="msg" hidden><%= msgg %></p>
 										
 							    		<div class="form-group text-center mt-1">
 											
@@ -297,6 +298,23 @@ window.onload=startTimer
 	}
 
 </script> -->
+
+
+<script>
+
+	const msg = document.getElementById('msg')
+
+	if(msg.textContent == 'Invalid OTP!!!'){
+
+		Swal.fire({
+		title: "Invalid OTP!!!",
+		text: "Invalid OTP!!!",
+		icon: "error"
+});
+
+	}
+
+</script>
 
 
 <%- include('../layouts/footer.ejs') %>

@@ -23,7 +23,6 @@
                           <th>profile</th>
                           <th>Name</th>
                           <th>Email</th>
-                          <th>Mobile</th>
                           <th>Status</th>
                           <th>Action</th>
                           
@@ -40,9 +39,8 @@
                                   <td>
                                     <img width="40" height="40" src= "https://img.icons8.com/color/48/name--v1.png" alt="name--v1"/>
                                   </td>
-                                  <td><%= clint[i].fullname %></td>
+                                  <td><%= clint[i].username %></td>
                                   <td><%= clint[i].email %></td>
-                                  <td><%= clint[i].phone %></td>
                                   <td>
                                     <% if(clint[i].is_blocked == false) { %>
 

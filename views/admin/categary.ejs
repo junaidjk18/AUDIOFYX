@@ -3,11 +3,11 @@
 
   <div class="container-scroller">
 
-    <%- include('../layouts/adminSidebar.ejs') %>
+    <%- include('../layouts/Adminsidebar.ejs') %>
 
     <div class="container-fluid page-body-wrapper">
 
-        <%- include('../layouts/adminNavbar.ejs') %>
+        <%- include('../layouts/AdminNavbar.ejs') %>
 
       <!-- partial -->
 
@@ -15,97 +15,7 @@
 
           <div class="content-wrapper" id="reloadDiv">
             <div class="d-flex    ">
-              <!--add brand-->
-              <div class=" d-flex  w-50 ">
-                <button class="btn btn-outline-info " data-bs-toggle="modal" data-bs-target="#Addbrand">Add brand</button>
-                <!--modal for add brand-->
-                <div class="modal fade" id="Addbrand" tabindex="-1" aria-labelledby="AddbrandLabel" aria-hidden="true">
-                  <div class="modal-dialog modal-lg">
-                      <div class="modal-content">
-                          <div class="modal-header">
-                              <h5 class="modal-title text-warning   " id="AddbrandLabel">New Brand</h5>
-                              <button type="button" class="btn-close btn-outline-danger " data-bs-dismiss="modal" aria-label="Close">X</button>
-                          </div>
-                          <div class="modal-body">
-                              <form> 
-                                  <div class="mb-3 d-flex justify-content-center ">
-                                    <div class="d-flex  ">
-                                      <label for="recipient-name" class="col-form-label " style="margin-right: 10px;">Brand Name : </label>
-                                      <input type="text" class=" rounded-pill border-0 text-white px-3 " style="background: #86a48622;" id="brand" oninput="brandCheck(this)">
-                                      
-                                    </div>
-                                      
-                                      
-                                  </div>
-                                  <div style="height: 15px;"><p id="error" class="text-danger text-center "></p></div>                              
-
-                              </form>
-                              <!-- BRAND TABLE-->
-                             
-
-                              <div>
-
-                                <div class="container-fluid text-warning   text-center p-2 pt-4 "><h4>Available Brands</h4></div>
-                                
-                                <table class="table  w-100 mt-4 table table-active table-dark  rounded-2 " style="border-radius: 10px;">
-
-                                  <thead class="text-center text-info ">
-
-                                    <tr>
-
-                                      <th class="text-white ">No</th>
-                                      <th class="text-white ">Brand Name</th>
-
-                                      <!-- <th>ID</th> -->
-
-                                    </tr>
-
-                                  </thead>
-
-                                  <tbody class="text-center ">
-                                    
-                                  <% if (brands.length > 0) { %>
-
-                                    <% for (let i = 0; i < brands.length ; i++) { %>
-
-                                      <tr>
-
-                                        <td><%= i + 1 %></td>
-
-                                        <td><%= brands[i].name %></td>
-
-                                      </tr>
-                                      
-                                  <%  } %>
-                                    
-                                <% } else {%>
-                            
-                                   <tr>         
-                                    <td colspan="7" class="text-danger"> Brand Not Found</td>
-                                  </tr> 
-
-                                <% } %>
-
-                                  </tbody>
-
-                                </table>
-
-                              </div>
-
-
-                              <!-- BRAND TABLE END-->
-                          </div>
-                          
-                          <div class="modal-footer">
-                              <button type="button" class="btn btn-outline-danger  px-3 py-1" data-bs-dismiss="modal">Cancel</button>
-                              <button type="button" class="btn btn-outline-success px-3 py-1"data-bs-dismiss="modal" id="submit-brand" onclick="addBrand()">Add</button>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              
-                
-              </div>
+              <!-- < -->
               <!--add category-->
               <div class="d-flex  justify-content-end w-50 ">
                 <button type="button" class="btn btn-outline-success  btn-icon-text" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">
@@ -523,79 +433,5 @@ function editValidation(input,cateId){
 
 }
 
-
-// brand validation 
-
-function brandCheck(input){
-
-const err = document.getElementById('error');
-const button = document.getElementById('submit-brand')
-const data = input.value.replace(/[^a-zA-Z]/g, '')
-const letterscheck = /^[A-Za-z]+$/;
-if(!letterscheck.test(data)){
-        err.textContent = 'Only letters are allowed';
-        button.disabled = true;
-        return;
-}else if (data.length<3){
-        err.textContent = 'minimum 3 letters';
-        button.disabled = true;
-        return
-}
-fetch(`/admin/addBrands?input=${data}` , {method : 'post'}).then(res => res.json()).then(data=> {
-
-  if(data.status){
-
-    button.disabled = true
-    err.textContent = 'Already Exist'
-
-  } else {
-
-    button.disabled = false
-    err.textContent = ''
-
-}
-
-});
-
-
-};
-
-// add brand
-function addBrand(){
-
-const brand =  document.getElementById('brand');
-
-fetch(`/admin/addBrands?name=${brand.value}` , {method:'post'})
-
-.then(response =>{
-
-  brandSweet();
-  $('#reloadDiv').load('/admin/category #reloadDiv')
-  console.log(response.message);
-
-})
-
-.catch(error => {
-
-  console.log(error.message);
-
- })
-
-
-};
-//  Brand Sweet :-
-
-function brandSweet(){
-
-Swal.fire({
-
-  title: "Brand Added",
-  text: "Brand Added Successfully",
-  icon: "success"
-
- });
-
-};
-
 </script>
-<%- include('../layouts/adminFooter.ejs') %>
+<%- include('../layouts/Adminfooter.ejs') %>
