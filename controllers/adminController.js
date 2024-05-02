@@ -42,14 +42,7 @@ const verifyAdmin = async (req,res)=>{
         console.log(error.message);
     }
 }
-
-const loaddashboard = async(req,res)=>{
-    try {
-        res.render('dashboard')
-    } catch (error) {
-        console.log(error.message);
-    }
-} 
+  
 
 // admin logout
 
@@ -162,7 +155,6 @@ const userAction = async ( req, res) =>{
 module.exports = {
     AdminLogin,
     verifyAdmin,
-    loaddashboard,
     loadusers,
     userAction,
     adminLogout,

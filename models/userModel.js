@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
     is_blocked : {
         type:Boolean,
         default : false
-    }
+    },
+    applyCoupen:[]
 
 });
 

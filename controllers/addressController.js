@@ -1,106 +1,185 @@
+//  Import Address Modal :-
+const Address = require('../models/address');
 
-const User = require ('../models/userModel')
-const Address = require ('../models/address')
-const category = require ('../models/category');
+//  Import User Modal :-
+const User = require('../models/userModel');
 
-const loadAddress = async (req, res) => {
+//  Import Product Modal :-
+const Product = require('../models/product');
+
+//  Import Category Modal :-
+const Category = require('../models/category');
+
+//  loadAddress (Get Method) :-
+
+const loadAddress = async (req, res , next) => {
+    
     try {
-        const categoryData = await category.find({is_listed: true})
-        if(req.session.user){
-          const listedCategory = await category.find({is_listed:true})
-        const userdata = await User.findById({_id:req.session.user._id})
-        const addressList = await Address.findOne({userId:req.session.user._id}) || null
-        const flash= req.flash('flash')
-        res.render('address',{listedCategory,userdata,login:req.session.user,addressList,msg:flash,categoryData})   
-        }else{
-            res.redirect('/login')
+
+        const categoryData = await Category.find({ is_Listed: true });
+        
+        if (req.session.user) {
+
+            const msg = req.flash('flash');
+            
+            const userData = await User.findById({ _id: req.session.user._id });   //   Passing User Id into Ejs Page
+
+            const addressDataa = await Address.findOne({ userId: req.session.user._id})      //  Passing Address Data into Ejs Page
+
+            res.render('address', { login: req.session.user, categoryData, userData, msgg: msg, address: addressDataa });
+
+        } else {
+
+            console.log("Byeee");
+
         }
-       
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
-
-const addAddress = async ( req , res ) => {
-    try {
-        const user = req.query.id
         
-        const getAddress = req.body.address
-        const exist = await Address.findOne({userId:user,addresss:{$elemMatch:{name:getAddress.address}}})
-        if(!exist){
-         const   newAddress = await Address.findOneAndUpdate( {userId:user},
-           { $addToSet:{
-            addresss:{ userName:req.session.user.fullname ,
-                     name:getAddress.address , 
-                     city:getAddress.city , 
-                     state:getAddress.state ,
-                     phone:getAddress.phone ,
-                     pincode:getAddress.pincode }      
-            }},
-             {new:true ,upsert:true}
-        )
-        if(newAddress){
-            res.send({success:true})
-        }    
-        }else{
-            res.status(400).send({failed:true})
+    } catch (error) {
+
+        next(error,req,res);
+
+        
+    }
+
+};
+
+//  addAddress (Post Method) :-
+
+const addAddress = async (req, res , next) => {
+    
+    try {
+        
+        const userId = req.query.id
+        
+        const exist = await Address.findOne({ userId: userId, addresss: { $elemMatch: { address: req.body.addressData.address } } });
+
+        if (!exist) {
+            
+            const verifyAddress = await Address.findOneAndUpdate(
+              { userId: req.query.id },
+
+              {
+                $addToSet: {
+                  addresss: {
+                    name: req.body.addressData.name,
+                    city: req.body.addressData.city,
+                    state: req.body.addressData.state,
+                    pincode: req.body.addressData.pincode,
+                    phone: req.body.addressData.phone,
+                    locality: req.body.addressData.locality,
+                    address: req.body.addressData.addresss,
+                  },
+                },
+              },
+              { new: true, upsert: true }
+            );
+            
+            if (verifyAddress) {
+                
+                res.send({success : true});
+
+            } else {
+
+                console.log("error aneeee");
+
+            }
+            
+        } else {
+
+            res.status(400).send({ exist: true });
+
         }
-        } catch (error) {
-            console.log(error.message);
-    }
-}
-
-// delete Address
-const deleteAddress = async ( req , res ) => {
-    try {
-        const  user = req.query.id
-        const addres = req.query.address
-       const remove = await Address.updateOne({userId:user},{$pull:{addresss:{_id:addres}}}) 
-        res.send({seleted:true})
+        
     } catch (error) {
-        
-    }
-}
-// show edit data 
-const showeditdata = async ( req , res ) => {
-    try {
-        const dataId = req.body.input
-        const editdata = await Address.findOne({'addresss._id':dataId},{'addresss.$':1})
-        console.log(editdata);
-        res.json({editdata})
 
-    } catch (error) {
+        res.status(400);
+        next(error,req,res);
+
         
     }
-}
-// update address
-const updateAddress = async ( req ,res ) => {
+
+};
+
+//  deleteAddress (Post Method) :-
+
+const deleteAddress = async (req, res , next) => {
+    
     try {
-        
-        const user = req.session.user._id
-        const {address,city,state,pincode,phone,id} = req.body
-        
-        const updatedata = await Address.findOneAndUpdate({userId:user,'addresss._id':id},{$set:{'addresss.$.name':address,'addresss.$.city':city,'addresss.$.state':state,'addresss.$.pincode':pincode,'addresss.$.phone':phone}})
-        if(updatedata){
-            req.flash('flash','success')
-            res.redirect('/Address')
-        }else{
-            req.flash('flash','failed')
-            res.redirect('/Address')
+
+        const userId = req.query.id
+        const addressId = req.query.addid;
+
+        const deleteAddress = await Address.updateOne({ userId: userId }, { $pull: { addresss: { _id: addressId } } });
+
+        if (deleteAddress) {
+            
+            res.send(true);
+
         }
+
     } catch (error) {
-        console.error('Error updating address:', error);
-        return res.status(500).json({ error: 'Internal server error' });
-    }
-}
 
+        next(error,req,res);
 
+        
+    }
 
-module.exports ={
-loadAddress,
-addAddress,
-deleteAddress,
-showeditdata,
-updateAddress
-}
+};
+
+//  Edit Address (Put Method) :-
+
+const editAddress = async (req, res , next) => {
+    
+    try {
+
+        const { edit } = req.body;
+
+        const editData = await Address.findOne({ 'addresss._id': edit }, { 'addresss.$': 1 });
+
+        res.json({ editData });
+        
+    } catch (error) {
+
+        next(error,req,res);
+
+        
+    }
+
+};
+
+//  Verify Edit Address (Post Method) :-
+
+const verifyEditAddress = async (req, res , next) => {
+    
+    try {
+
+        const user_Id = req.session.user._id;
+        const { name, phone, locality, pincode, address, city, state, id } = req.body;
+
+        const editAddress = await Address.findOneAndUpdate({ userId: user_Id, 'addresss._id': id }, { $set: { 'addresss.$.name': name, 'addresss.$.phone': phone, 'addresss.$.locality': locality, 'addresss.$.pincode': pincode, 'addresss.$.city': city, 'addresss.$.state': state, 'addresss.$.address': address } });
+
+        if (editAddress) {
+          
+            req.flash('flash', 'Address Edited');
+            res.redirect('/address');
+
+        }
+        
+    } catch (error) {
+
+        next(error,req,res);
+
+        
+    }
+
+};
+
+module.exports = {
+
+    loadAddress,
+    addAddress,
+    deleteAddress,
+    editAddress,
+    verifyEditAddress,
+
+};

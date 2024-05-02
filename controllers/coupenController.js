@@ -20,6 +20,7 @@ const Wallet = require("../models/wallet");
 //  Coupen Modal :-
 const Coupen = require('../models/coupen_model');
 
+//  User
 
 const loadCoupen = async (req, res) => {
     
@@ -49,6 +50,35 @@ const loadCoupen = async (req, res) => {
 
 };
 
+//  User
+
+const coupenCheck = async (req, res) => {
+    
+    try {
+
+        const inpValue = req.body.inpVal
+
+        const checkCoupen = await Coupen.findOne({ coupenId: inpValue });
+
+        if (checkCoupen) {
+            
+            res.send({ succ: true })
+
+        } else {
+
+            res.send({ fail: true })
+
+        }
+
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//  Admin
 
 const loadAdminCoupen = async (req, res) => {
     
@@ -68,6 +98,8 @@ const loadAdminCoupen = async (req, res) => {
 
 };
 
+//  Admin
+
 const addCoupen = async (req, res) => {
     
     try {
@@ -79,7 +111,7 @@ const addCoupen = async (req, res) => {
         const createCoupen = new Coupen({
 
             name: coupon,
-            discount: discount,
+            discountt: discount,
             from: min,
             to: max,
             coupenId: newId,
@@ -103,6 +135,115 @@ const addCoupen = async (req, res) => {
 
 };
 
+//  Admin 
+
+const coupenAction = async (req, res) => {
+    
+    try {
+
+        const copId = req.query.id
+
+        const changeStatus = await Coupen.findOne({ _id: copId });
+
+        changeStatus.status = !changeStatus.status
+        changeStatus.save()
+        
+    } catch (error) {
+
+        
+    }
+
+};
+
+//  Using Coupen
+
+const useCoupen = async (req, res) => {
+    
+    try {
+
+        const coupenIdd = req.body.coupen;
+        
+        const coupen = await Coupen.findOne({ coupenId: coupenIdd, status: true });
+
+        // if (coupen) {
+            
+            const cartData = await Cart.findOne({ userId: req.session.user._id });
+
+        //     const exist = await User.findOne({ _id: req.session.user._id, applyCoupen: { $in: [coupen.coupenId] } });
+
+            // if (!exist) {
+                
+                const cartPrice = cartData.Total_price;  //  CartPrice
+                const coupenDis = coupen.discountt     //  Coupen Discount
+                
+                if (coupen) {
+                            
+                    const offerValue = Math.round((cartPrice) - (cartPrice * coupenDis / 100));
+                    const discountedValue = cartPrice - offerValue
+                
+                    const updateCart = await Cart.findOneAndUpdate({ _id: cartData._id }, { $set: { Total_price: offerValue, coupenDisPrice: discountedValue, percentage: coupen.discountt } }, { new: true });
+                    // await User.findOneAndUpdate({ _id: req.session.user._id }, { $push: { applyCoupen: coupen.coupenId } });
+                
+                    if (updateCart) {
+                               
+                        req.flash("flash", "coupen");
+                        res.redirect("/checkout");
+                
+                    }
+                }
+
+            // } else {
+
+            //     req.flash('flash', 'usedOne');
+            //     res.redirect("/cart");
+
+            // }
+
+        // } else {
+
+        // }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//  Used Coupen Removing
+
+const remove = async (req, res) => {
+    
+    try {
+
+        const userIdd = req.session.user._id
+
+        const cartData = await Cart.findOne({ userId: userIdd });
+
+        const addPrice = cartData.coupenDisPrice
+
+        const updateCart = await Cart.findOneAndUpdate({ userId: userIdd } , { $inc: { Total_price: addPrice}});
+
+        const updateCartt = await Cart.findOneAndUpdate({userId : userIdd} , {$set : {coupenDisPrice : 0 , percentage : 0}})
+
+        // await User.findOneAndUpdate({ _id: userIdd }, { $pop: { applyCoupen: 1 } }); //  Remove Coupen Id in User Side
+        
+        if (updateCart && updateCartt) {
+            
+            res.send({ succ: true });
+        }
+        
+    } catch (error) {
+
+        console.log(error.message);
+        
+    }
+
+};
+
+//  Admin Delete Coupen
+
 const deleteCoupen = async (req, res) => {
     
     try {
@@ -125,6 +266,8 @@ const deleteCoupen = async (req, res) => {
 
 };
 
+//  Coupen Id Generating
+
 const generateCoupenId = () => {
 
     const look = '123456789G'
@@ -143,7 +286,11 @@ const generateCoupenId = () => {
 module.exports = {
 
     loadCoupen,
+    coupenCheck,
     loadAdminCoupen,
     addCoupen,
+    coupenAction,
+    useCoupen,
+    remove,
     deleteCoupen
 }

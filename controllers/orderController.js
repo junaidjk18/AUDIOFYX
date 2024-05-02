@@ -72,8 +72,6 @@ const orderView = async (req, res) => {
     
 };
 
-//  Order Kitty (Post Method) :-
-
 const orderKitty = async (req, res) => {
     
     try {
@@ -111,6 +109,8 @@ const orderKitty = async (req, res) => {
 
             orderDate: Date.now(),
             orderAmount: cartt.Total_price,
+            coupenDis : cartt.coupenDisPrice,
+            percentage : cartt.percentage,
             payment: peymentmethod,
             // orderStatus: 'Pending',
 
@@ -120,9 +120,9 @@ const orderKitty = async (req, res) => {
 
         if (req.body.peyment == 'wallet') {
 
-            const balancee = WalletData.balance - cartt.totalCartPrice
+            const balancee = WalletData.balance - cartt.Total_price
 
-            const debitAmount = cartt.totalCartPrice
+            const debitAmount = cartt.Total_price
             
             await Wallet.findOneAndUpdate(
             
@@ -312,10 +312,26 @@ const returnOrd = async (req, res) => {
 
 };
 
+//  Download Invoice (Put Method) :-
 
+const downloadInvoice = async (req, res , next) => {
+    
+    try {
 
+        const ordId = req.query.id
+        
+        const ordData = await Order.find({ _id: ordId }).populate('products.productId userId')
 
+        res.render('invoice', { ordData })
+        
+    } catch (error) {
 
+        next(error,req,res);
+
+        
+    }
+
+};
 
 
 module.exports = {
@@ -325,6 +341,7 @@ module.exports = {
     orderView,
     loadsuccess,
     orderCancel,
-    returnOrd
+    returnOrd,
+    downloadInvoice
 
 };

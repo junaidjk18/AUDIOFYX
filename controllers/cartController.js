@@ -12,14 +12,19 @@ const cart = async ( req ,res ) => {
         const listedCategory = await category.find({is_listed:true})
         const userdata = await User.findById({_id:req.session.user._id})
         const userProduct = await Cart.findOne({userId : req.session.user._id}).populate('product.productId')
+        const cartData = await Cart.findOne({userId : req.session.user._id});
+
+        console.log(cartData);
 
         const updateCart = userProduct.product.reduce((acc , val) => acc + val.price , 0)
 
         const newPrice = await Cart.findOneAndUpdate({userId : req.session.user._id} , {$set : {Total_price : updateCart}} , {new : true , upsert : true});
         
+        const msg = req.flash('flash')
+        
         if(req.session.user){
 
-            res.render('cart',{login:req.session.user,listedCategory,userProduct,userdata,categoryData , newPricee : newPrice.Total_price})
+            res.render('cart',{login:req.session.user,listedCategory,userProduct,userdata,categoryData , newPricee : newPrice.Total_price , msgg : msg , cartData})
 
         }else{
             res.redirect('/login')

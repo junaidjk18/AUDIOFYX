@@ -208,6 +208,8 @@ const chooseAddress = async (req, res) => {
     
     try {
 
+        console.log("j");
+
         const addId = req.query.id
 
         const userIdd = req.session.user._id;

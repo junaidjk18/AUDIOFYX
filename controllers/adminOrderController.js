@@ -7,6 +7,8 @@ const Order = require('../models/order');
 
 const Product = require('../models/product')
 
+const Wallet = require('../models/wallet')
+
 //  loadOrders (Get Method) :-
 
 const loadOrderss = async (req, res) => {
@@ -219,11 +221,11 @@ const returnorderManage = async (req, res) => {
 
                 };
 
-                // if (element.retruned && ordId.peyment !== 'COD') {
+                if (element.retruned && ordId.peyment !== 'COD') {
                 
-                //     await Wallet.findOneAndUpdate({ userId: userIdd }, { $inc: { balance: element.price }, $push: { transaction: { amount: element.price, creditOrDebit: 'credit' } } }, { new: true, upsert: true });
+                    await Wallet.findOneAndUpdate({ userId: userIdd }, { $inc: { balance: element.price }, $push: { transaction: { amount: element.price, creditOrDebit: 'credit' } } }, { new: true, upsert: true });
                 
-                // }
+                }
             }
 
         }

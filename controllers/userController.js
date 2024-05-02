@@ -64,7 +64,7 @@ const insertUser = async(req,res)=>{
         req.session.userSession = user
         const userData = req.session.userSession
 
-        console.log(userData + "ahyy");
+        // console.log(userData + "ahyy");
 
         if(userData){
           
@@ -112,9 +112,13 @@ const verifyOtp=async(req,res)=>{
         // console.log(req.session.userSession);
         const {inp1,inp2,inp3,inp4}=req.body
 
-        const enterdOtp=`${inp1}${inp2}${inp3}${inp4}`
+        const enterdOtp = `${inp1}${inp2}${inp3}${inp4}`
+
+        console.log(enterdOtp);
 
         const verifyedOtp= await Otp.findOne({userEmail:querymail,otp:enterdOtp})
+
+        console.log(verifyedOtp);
 
         if(verifyedOtp){
 
@@ -135,7 +139,8 @@ const verifyOtp=async(req,res)=>{
                 })
 
                 userr.save()
-                const updating=await User.findOneAndUpdate({email:querymail},{$set:{is_Verified:true}});
+
+                const updating = await User.findOneAndUpdate({email:querymail},{$set:{is_Verified:true}});
 
                 if(updating){
 
@@ -152,7 +157,7 @@ const verifyOtp=async(req,res)=>{
 
     }else{
         req.flash('flash' , "Invalid OTP!!!")
-        res.redirect('/otp')
+        res.redirect(`/otp?email=${querymail}`)
     }
 
     }catch(error){
@@ -238,7 +243,9 @@ const loadresendotp = async(req,res)=>{
         if(usersession.email == userdata)
         {
             console.log("hai");
+
             const generatedOTP = generateOTP()
+            
             console.log(generatedOTP + 'Re-send otp');
 
             await sendotpmail(usersession.name,usersession.email,generatedOTP ,res)
@@ -371,15 +378,70 @@ const products = async(req,res)=>{
         console.log(error.message);
     }
 }
-const catagory = async(req,res)=>{
+// const catagory = async(req,res)=>{
+//     try {
+//         const categoryData = await category.find({is_listed: true})
+//         console.log(categoryData);
+//         res.render('catagory' , {login : req.session.user,categoryData})
+//     } catch (error) {
+        
+//     }
+// }
+const loadcategory = async (req, res) => {
+
     try {
-        const categoryData = await category.find({is_listed: true})
-        console.log(categoryData);
-        res.render('catagory' , {login : req.session.user,categoryData})
+    
+    const id = req.params.id;
+
+    //   const categoryName = id.replace(/%20/g, " ");
+
+      const categoryData = await category.find({ is_listed: true });
+  
+      const productt = await product.aggregate([
+
+        { $match: { status: true } },
+  
+        {
+
+          $lookup: {
+
+            from: "categories",
+            localField: "category",
+            foreignField: "_id",
+            as: "category",
+
+          },
+
+        },
+  
+        { $unwind: "$category" },
+  
+        { $match: { "category.name": id } },
+
+      ]);
+  
+      if (req.session.user) {
+
+          res.render("catagory", {
+          login: req.session.user,
+          categoryData,
+          productt,
+          
+        });
+
+      } else {
+
+        res.render("catagory", { categoryData, productt });
+
+      }
+
     } catch (error) {
         
+      console.log(error.message);
+
     }
-}
+
+  };
 
 const productDetails = async (req, res) => {
     
@@ -503,7 +565,7 @@ const proNameSortAZ = async (req, res) => {
 
         if (status) {
             
-            const productSmallToHigh = await product.find({ status: true }).sort({ name: -1 }).populate('category');
+            const productSmallToHigh = await product.find({ status: true }).sort({ name: 1 }).populate('category');
 
             res.send(productSmallToHigh);
 
@@ -527,7 +589,7 @@ const proNameSortZA = async (req, res) => {
 
         if (status) {
             
-            const productSmallToHigh = await product.find({ status: true }).sort({ name: 1 }).populate('category');
+            const productSmallToHigh = await product.find({ status: true }).sort({ name: -1 }).populate('category');
 
             res.send(productSmallToHigh);
 
@@ -646,7 +708,7 @@ module.exports = {
     verifyOtp,
     aboutus,
     products,
-    catagory,
+    loadcategory,
     contact,
     loadresendotp,
     productDetails,

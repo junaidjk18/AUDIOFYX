@@ -12,6 +12,8 @@ const catogaryController=require('../controllers/categaryController')
 const admin_order = require('../controllers/adminOrderController')
 const adminOffer = require('../controllers/admin_offer')
 const coupen_controller = require('../controllers/coupenController')
+const salesReportController = require('../controllers/adminReports')
+const dashboardController = require('../controllers/admin_dashboard')
 
 //admin middleware
 
@@ -60,7 +62,13 @@ admin_route.use(express.urlencoded({extended:true}))
 admin_route.get('/',  adminAuth.isLogout,adminController.AdminLogin)
 admin_route.post('/login',adminController.verifyAdmin)
 
-admin_route.get('/dashboard' , adminController.loaddashboard)
+admin_route.get('/dashboard' , dashboardController.loadDahboard)
+
+//  Year Chart (put)
+admin_route.put('/chartYear', dashboardController.chartYear);
+
+//  Month Chart (put)
+admin_route.put('/monthChart', dashboardController.monthChart);
 
 admin_route.get('/users', adminAuth.isLogin , adminController.loadusers)
 
@@ -135,6 +143,15 @@ admin_route.post('/addCoupen', upload.array('image', 1), coupen_controller.addCo
 
 //  DeleteCoupen (put)
 admin_route.put("/deletCoupen", coupen_controller.deleteCoupen);
+
+//  CoupenAction (put)
+admin_route.put("/copenAction", coupen_controller.coupenAction);
+
+//  loadReport (get)
+admin_route.get('/salesReport/:id',salesReportController.loadReport);
+
+//  Custom Report (put)
+admin_route.put("/cstmReport", salesReportController.customReport);
 
 
 //  Admin Offer Section :-

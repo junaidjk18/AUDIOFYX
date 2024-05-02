@@ -9,7 +9,7 @@ const coupenSchema = mongoose.Schema({
 
     },
 
-    discount: {
+    discountt: {
         
         type: Number,
         required: true

@@ -9,7 +9,34 @@ const newcart = new mongoose.Schema({
         price : {type : Number , required : true}
     }],
     
-    Total_price : {type : Number}
+    Total_price : {
+        type : Number , 
+        required : true
+    },
+    
+    userId: {
+        
+        type: String,
+        required: true
+    
+    },
+
+    coupenDisPrice: {
+        
+        type: Number,
+        required: true,
+        default: 0
+
+    },
+
+    percentage: {
+        
+        type: Number,
+        required: true,
+        default: 0
+        
+
+    }
 })
 
 module.exports = mongoose.model('Cart',newcart)

@@ -20,14 +20,14 @@ const user_wishlist = require('../controllers/wishlist-constroller')
 
 const user_coupen = require ('../controllers/coupenController')
 
-
+const user_auth = require('../middleware/userAuth')
 
 user_route.use(express.json())
 user_route.use(express.urlencoded({extended:true}))
 
 user_route.get('/', userController.loadhome)
 
-user_route.get('/login',  userController.loadLogin)
+user_route.get('/login', user_auth.loginUser, userController.loadLogin)
 user_route.post('/login',userController.verifyLogin)
 
 user_route.get('/register', userController.loadRegister)
@@ -75,11 +75,11 @@ user_route.get('/Address',address_controller.loadAddress)
 // add post 
 user_route.post('/addAddress',address_controller.addAddress)
 // delete address 
-user_route.post('/deleteAddress',address_controller.deleteAddress)
+user_route.post('/deleteAdd',address_controller.deleteAddress)
 
-user_route.put("/editaddresss", address_controller.showeditdata);
+user_route.put("/editAddress", address_controller.editAddress);
 // edit address update
-user_route.post("/updateaddress", address_controller.updateAddress);
+user_route.post("/verifyEditAddress", address_controller.verifyEditAddress);
 
 // cart load
 user_route.get('/cart',cart_controller.cart)
@@ -102,6 +102,16 @@ user_route.post("/cartAction", userController.cartAction);
 //  Coupen (get)
 user_route.get('/coupen', user_coupen.loadCoupen);
 
+
+//  coupenCheck (post)
+user_route.post("/coupenCehck", user_coupen.coupenCheck);
+
+//  useCoupen (post)
+user_route.post('/useCoupen', user_coupen.useCoupen);
+
+//  removeCouepn (put)
+user_route.put('/removeCop', user_coupen.remove);
+
 //  checkout (get)
 user_route.get('/checkout', checkout_controller.loadCheckout);
 
@@ -113,6 +123,8 @@ user_route.put("/editAddressCheckout", checkout_controller.editAddress);
 
 //  verifyEditAddressCheckout (post)
 user_route.post('/verifyEditAddCheckout', checkout_controller.verifyEditAddress);
+
+user_route.post('/chooseAddress' , checkout_controller.chooseAddress)
 
 //  deleteAddress (post)
 user_route.post('/deleteCheckAdd', checkout_controller.deleteAdd);
@@ -150,7 +162,10 @@ user_route.put('/returnOrd', orders_controller.returnOrd);
 //  Order Kitty (post)
 user_route.post('/getOrder', orders_controller.orderKitty);
 
-user_route.get('/catagory',userController.catagory)
+//  Download Invoice
+user_route.get("/downloadInvoice", orders_controller.downloadInvoice);
+
+user_route.get('/category/:id',userController.loadcategory)
 
 user_route.get('/contact',userController.contact)
 

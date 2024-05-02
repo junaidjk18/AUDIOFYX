@@ -27,7 +27,10 @@
                             
                             <ul class="p-2 " >
                                 <% categoryData.forEach(e => {%>
-                                 <li><a href="/catagory"><%= e.name %></a></li>
+
+
+                                 <li><a href="/category/<%= e.name %>"><%= e.name %></a></li>
+
                                 <%}); %>
                                  
  
