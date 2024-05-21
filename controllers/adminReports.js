@@ -12,6 +12,7 @@ const loadReport = async (req, res) => {
         if (reportVal == "Week") {
 
             const crrDate = new Date();
+            console.log(crrDate.getFullYear());
 
             const weeStart = new Date(
 
@@ -24,7 +25,7 @@ const loadReport = async (req, res) => {
             const weekEnd = new Date(weeStart);
             weekEnd.setDate(weekEnd.getDate() + 7);
 
-            const report = await Order.find({ orderDate: { $gte: weeStart, $lte: weekEnd } });
+            const report = await Order.find({ orderDate: { $gte: weeStart, $lte: weekEnd },  orderStatus : 'delivered' });
 
             res.render("salesReport", { report, data: "Week", reportVal: req.params.id });
 
@@ -35,9 +36,9 @@ const loadReport = async (req, res) => {
             const startDate = new Date(crrDate.getFullYear(), crrMonth);
             const endDate = new Date(crrDate.getFullYear(), crrMonth + 1, 0);
 
-            const report = await Order.find({ orderDate: { $gte: startDate, $lte: endDate } });
+            const report = await Order.find({ orderDate: { $gte: startDate, $lte: endDate },  orderStatus : 'delivered' });
 
-            res.render("salesReport", { report, data: "Month", reportVal: req.params.id, });
+            res.render("salesReport", { report, data: "Month", reportVal: req.params.id, } );
             
         } else if (reportVal == "Year") {
 
@@ -45,11 +46,7 @@ const loadReport = async (req, res) => {
             const yearStart = new Date(crrDate.getFullYear(), 0, 1);
             const yearEnd = new Date(crrDate.getFullYear() + 1, 0, 0);
 
-            const report = await Order.find({
-
-                orderDate: { $gte: yearStart, $lte: yearEnd },
-
-            });
+            const report = await Order.find({ orderDate: { $gte: yearStart, $lte: yearEnd }, orderStatus : 'delivered' });
 
             res.render("salesReport", { report, data: "Year", reportVal: req.params.id });
 
@@ -91,8 +88,10 @@ const customReport = async (req, res) => {
         endDate.setDate(endDate.getDate() + 1);
     
         const getData = await Order.find({
-          orderDate: { $gte: startDate, $lte: endDate }
+          orderDate: { $gte: startDate, $lte: endDate },  orderStatus : 'delivered'
         });
+
+       
         // console.log(getData);
 
         res.send({ getData });

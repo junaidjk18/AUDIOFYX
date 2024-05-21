@@ -109,7 +109,13 @@
                         <th>Name</th>
                         <th>Price</th>
                         <th>Quantity </th>
-                        <th>Delivery </th>
+                        <th class="">Delivery </th>
+                        <% if (locals.order.coupenDis >= 1) { %>
+
+                          <th class="ps-5">Offer</th>
+                          
+                      <%  } %>
+
                         <th>Total Price</th>
                         <!-- <th>Options</th> -->
                         <th class="<%= order.products[0].orderProStatus == 'canceled' ? 'disabled' : ''  %>"><%= order.products[0].orderProStatus=='canceled' ? '' : 'options' %></th>
@@ -154,7 +160,7 @@
                               <!-- End .product -->
                             </td>
 
-                            <td class="stock-col ms-3 ">$<%=product.productId.price %></td>
+                            <td class="stock-col ms-3 "><%=product.productId.price %></td>
 
                             <td class="stock-col">
                               
@@ -173,6 +179,16 @@
                               
                             </td>
 
+                           <% if (order?.coupenDis >= 1) { %>
+
+                            <td class="product-col text-success ps-5">
+
+                              <%= order?.coupenDis  %>
+
+                            </td>
+                            
+                          <% } %>
+
                             <td class="price-col">
 
                               <%= product.price - order?.coupenDis / order.products.length %>
@@ -183,6 +199,17 @@
 
                               <div class="d-flex align-items-center justify-content-between w-100">
 
+                                <% if (product.orderProStatus == 'payment pending') { %>
+          
+                                  <button type="button" class="btn btn-primary" onclick="razorPayy('<%= order.userId %>' , '<%= order.orderAmount %>' , '<%= order._id %>')">
+
+                                    <span >Place Order</span>
+
+                                  </button>
+      
+
+                            <%  } else { %>
+
                                 <% if (product.orderProStatus == 'delivered' || product.orderProStatus == 'returned') { %>
 
                                   <button <%= product.orderProStatus == 'returned' && 'disabled' %> type="submit" onclick="returnOrd('<%= product.productId._id %>' , '<%= locals.order._id %>' , '<%= product.price %>' )" style="border-radius: 5px; transition: all ease 0.5s; background-color: #c96;" class="p-3 rounded-3  border-0 text-white <%= product.orderProStatus == 'returned' && 'opacity-50' %>">Return</button>
@@ -192,6 +219,8 @@
                                   <button <%= product.orderProStatus == 'canceled' && 'disabled' %>  type="submit" onclick="cancelOrd('<%= product.productId._id %>' , '<%= locals.order._id %>' , '<%= product.price %>')" style="border-radius: 5px; transition: all ease 0.5s; background-color: #c96;" class=" <%= product.orderProStatus == 'canceled' && 'opacity-50' %>  p-3 rounded-3  border-0 text-white">Cancel</button>
 
                                 <% }  %>
+
+                            <% } %>
 
 
                               </div>
@@ -259,6 +288,8 @@
 <script src="assets/js/owl.carousel.min.js"></script>
 <!-- Main JS File -->
 <script src="assets/js/main.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 
@@ -385,6 +416,73 @@ fetch('/returnOrd' , {method : 'put' , headers : {'Content-Type': 'application/j
 
   }
 
+})
+
+}
+
+
+
+function razorPayy(userId, amount,ordIdd) {
+
+fetch('/sucRazorpay', {
+
+  method: 'POST',
+  headers: { 'Content-type': 'application/json' },
+
+  body: JSON.stringify({ amount, userId })
+
+}).then(res => res.json()).then(data => {
+
+    if (data.succes) {
+
+        let options = {
+
+        "key": `${data.key_id}`,
+        "amount": `${data.amount}`,
+        "currency": "INR",
+        "name": "AUDIOFYX",
+        "order_id": `${data.order_id}`,
+
+        "handler": function (response) {
+
+          fetch('/changeStatus' , {method : 'post' , headers : { 'Content-type': 'application/json' } , body : JSON.stringify({ordIdd})})
+
+          .then(res => res.json())
+
+          .then(data => {
+
+            if(data.suc){
+
+              window.location.reload()
+
+            }
+
+          })
+                                      
+        },
+
+        "profile": {
+
+          "name": `${data.name}`,
+          "email": `${data.email}`
+
+        }
+
+      }
+
+      let razorpayObject = new Razorpay(options);
+
+      //	Payment Failed Area :- 
+
+      razorpayObject.on('payment.failed', (response) => {		
+
+        window.location.reload()
+
+      });
+
+      razorpayObject.open();
+
+    } 
 })
 
 }

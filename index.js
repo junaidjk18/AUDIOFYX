@@ -1,7 +1,8 @@
 //  connecting mongodb
 
 const mongoose = require('mongoose')
-mongoose.connect('mongodb://localhost:27017/AUDIOFYX')
+// mongoose.connect('mongodb://localhost:27017/AUDIOFYX')
+mongoose.connect('mongodb+srv://junaidkallil:junaid123@cluster0.4kkcyad.mongodb.net/AUDIOFYX')
 
 const session = require ('express-session')
 const express= require('express')

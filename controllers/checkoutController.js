@@ -10,10 +10,15 @@ const Product = require("../models/product");
 //  Import Category Modal :-
 const Category = require("../models/category");
 
+const Wallet = require('../models/wallet')
+
 //  Cart
 const Cart = require('../models/cart');
 
 const razorPay = require('./razorpay');
+
+const order = require('../models/order')
+
 //    Load Checkout (Get Method) :-
 
 const loadCheckout = async (req, res) => {
@@ -40,12 +45,14 @@ const loadCheckout = async (req, res) => {
             
 
             if (cartDataa) {
+
+                const walletDataa = await Wallet.findOne({userId : req.session.user})
                 
                 const newTprice = cartDataa.product.reduce((acc, val) => acc + val.price, 0);
                 
                 const cartData = await Cart.findOneAndUpdate({ userId: req.session.user._id }, { $set: { totalCartPrice: newTprice } }, { upsert: true, new: true });
                             
-                res.render("checkout", { login: req.session.user, categoryData, addres: addresData, userData, msgg: msg, cartData });
+                res.render("checkout", { login: req.session.user, categoryData, addres: addresData, userData, msgg: msg, cartData , walletDataa});
                 
             } else {
 
@@ -328,6 +335,167 @@ const RazorPay = async (req, res) => {
 };
 
 
+const failRazorpay = async (req, res) => {
+    
+    try {
+
+        const userIdd = req.session.user._id
+
+        const cart = await Cart.findOne({ userId: userIdd });
+
+        const payMethod = req.body.payment;
+
+        const addres = await Address.findOne({ userId: userIdd, 'addresss.status': true }, { 'addresss.$': 1 });
+
+        const { name, phone, address, pincode, locality, state, city } = addres?.addresss?.[0] ?? {};
+
+        const getFailedOrd = await order.create({
+
+            userId: userIdd,
+
+            products: cart.product.map((val) => ({
+
+                productId: val.productId,
+                quantity: val.quantity,
+                price: val.price,
+                orderProStatus: 'payment pending'
+
+            })),
+
+            deliveryAddress: {
+
+                name: name,
+                phone: phone,
+                address: address,
+                locality: locality,
+                city: city,
+                state: state,
+                pincode: pincode,
+            },
+
+            orderDate: Date.now(),
+            orderStatus:'payment pending',
+            orderAmount: cart.Total_price,
+            payment: payMethod,
+            coupenDis: cart.coupenDisPrice,
+            percentage: cart.percentage,
+
+        });
+
+        await Cart.updateOne({userId : userIdd} , {$unset : {products : 1 , coupenDisPrice : 0, percentage:0 , Total_price :0}});
+
+        if (getFailedOrd) {
+
+            console.log("hahaha");
+            
+            res.redirect("/orders");
+
+        }
+        
+    } catch (error) {
+
+        console.log(error.message); 
+        
+    }
+
+};
+
+
+const changeProStatus = async (req, res, next) => {
+    
+    try {
+
+        const ordIdd = req.body.ordIdd
+
+        const ord = await order.findOne({ _id: ordIdd });
+
+        const upd = await order.findOneAndUpdate({ _id: ordIdd }, { $set: { 'products.$[].orderProStatus': 'pending' } });
+
+        //  Stock Managing :-
+
+        ord.products.forEach(async (e) => {
+            
+            let productt = await Product.findOne({ _id: e.productId });
+            
+            let newStock = productt.stock - e.quantity;
+            
+            await Product.findOneAndUpdate({ _id: e.productId }, { $set: { stock: newStock } });
+            
+        });
+
+        if (upd) {
+            
+            res.send({ suc: true })
+
+        }
+        
+    } catch (error) {
+
+        next(error, req, res)
+        
+    }
+
+};
+
+const sucRazorpay = async (req, res, next) => {
+    
+    try {
+
+        const userIdd = req.session.user._id;
+
+        if (userIdd) {
+
+
+            const user = await User.findOne({ _id: req.body.userId });
+            const amount = req.body.amount * 100;
+        
+            const options = {
+        
+                amount: amount,
+                currency: "INR",
+                receipt: "absharameen625@gmail.com",
+                    
+            };
+        
+            razorPay.orders.create(options, (err, order) => {
+        
+                if (!err) {
+        
+                    res.send({
+        
+                        succes: true,
+                        msg: "ORDER created",
+                        order_id: order.id,
+                        amount: amount,
+                        key_id: process.env.RAZORPAY_IDKEY,
+                        name: user.fullName,
+                        email: user.email,
+        
+                    });
+        
+                } else {
+        
+                    console.error("Error creating order:", err);
+        
+                    res.status(500).send({ success: false, msg: "Failed to create order" });
+                }
+        
+            });
+
+        } else {
+
+            res.redirect('/login');
+
+        }
+    
+    } catch (error) {
+
+        next(error, req, res);
+
+        
+    }
+
+};
 
 module.exports = {
 
@@ -337,6 +505,9 @@ module.exports = {
     editAddress,
     verifyEditAddress,
     chooseAddress,
-    RazorPay
+    RazorPay,
+    failRazorpay,
+    changeProStatus,
+    sucRazorpay
     
 };

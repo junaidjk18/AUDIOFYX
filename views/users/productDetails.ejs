@@ -80,7 +80,7 @@
                                     <div class="d-flex gap-3 ">
 
                                     <div class="product-price">
-                                       $ <%= productData.price %>
+                                        <%= productData.price %>
                                     </div><!-- End .product-price -->
 
                                     <!--  -->
@@ -617,8 +617,10 @@
 function addCart(id){
 
     const quantity = document.getElementById('quantity').value;
+
+    console.log(quantity);
     
-    fetch(`/addCart?id=${id} `, {method : 'post' , headers : {'Content-Type' : 'application/json'} , body : JSON.stringify({quantity})})
+    fetch(`/addCart?id=${id}&&qty=${quantity} `, {method : 'post' })
 
     .then(res => res.json())
 

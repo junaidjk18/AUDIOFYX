@@ -41,19 +41,26 @@ const cart = async ( req ,res ) => {
 const addCart = async ( req , res ) => {
 
     try {
+        console.log('hii');
 
         if(req.session.user){
 
             const proId = req.query.id
             const userIdd = req.session.user._id
+            const quantity = req.query.qty || 1
+
+            console.log(quantity);
 
         const cartProduct = await PRODUCTS.findOne({_id:proId});
 
     //    console.log(cartProduct)
 
-        const exist= await Cart.findOne ({userId:userIdd , product: {$elemMatch: {productId: proId} } } );
+        const exist= await Cart.findOne({userId:userIdd , product: {$elemMatch: {productId: proId} } } );
 
         if(!exist){
+            console.log('aaa');
+            const total = cartProduct.discount > 0 ? cartProduct.dis_price * quantity : cartProduct.price * quantity
+            console.log('bbb');
 
            await Cart.findOneAndUpdate({userId:userIdd},
 
@@ -61,7 +68,7 @@ const addCart = async ( req , res ) => {
 
                 product:{productId:proId,
 
-                price:cartProduct.price}
+                price: total}
 
             }},{new:true ,upsert:true})
 

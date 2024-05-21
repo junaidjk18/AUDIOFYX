@@ -62,7 +62,7 @@ admin_route.use(express.urlencoded({extended:true}))
 admin_route.get('/',  adminAuth.isLogout,adminController.AdminLogin)
 admin_route.post('/login',adminController.verifyAdmin)
 
-admin_route.get('/dashboard' , dashboardController.loadDahboard)
+admin_route.get('/dashboard' ,adminAuth.isLogin, dashboardController.loadDahboard)
 
 //  Year Chart (put)
 admin_route.put('/chartYear', dashboardController.chartYear);
@@ -112,7 +112,7 @@ admin_route.post('/productsAdd', upload.array('images', 3),productController.add
 
 
 // edit product 
-admin_route.get('/editProduct',productController.loadeditProduct)
+admin_route.get('/editProduct', adminAuth.isLogin ,productController.loadeditProduct)
 
 //product list  
 
@@ -124,10 +124,10 @@ admin_route.post('/productedit/:id',upload.fields([{ name: 'image0', maxCount: 1
 
 
 //  Admin Orders List (get)
-admin_route.get('/orders', admin_order.loadOrderss);
+admin_route.get('/orders', adminAuth.isLogin ,admin_order.loadOrderss);
 
 //  Admin Orders Details (post)
-admin_route.get('/ordDetails', admin_order.ordersDetails);
+admin_route.get('/ordDetails',adminAuth.isLogin , admin_order.ordersDetails);
 
 //  Admin OrderStatus Handling (put)
 admin_route.put("/orderStatusHandling", admin_order.orderProstatus);
@@ -136,7 +136,7 @@ admin_route.post("/retordmanage",admin_order.returnorderManage)
 
 
 //  Admin Coupen (get)
-admin_route.get('/adminCoupen', coupen_controller.loadAdminCoupen);
+admin_route.get('/adminCoupen',adminAuth.isLogin , coupen_controller.loadAdminCoupen);
 
 //  AddCoupen (post)
 admin_route.post('/addCoupen', upload.array('image', 1), coupen_controller.addCoupen);
@@ -157,7 +157,7 @@ admin_route.put("/cstmReport", salesReportController.customReport);
 //  Admin Offer Section :-
 
 //  loadIffer (get)
-admin_route.get('/adminOffer', adminOffer.loadOffer);
+admin_route.get('/adminOffer',adminAuth.isLogin , adminOffer.loadOffer);
 
 //  addOffer (post)
 admin_route.post('/addOffer', adminOffer.addOffer);

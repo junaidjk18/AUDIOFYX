@@ -79,7 +79,7 @@
 
                     <% if (walletData?.transaction.length >= 1) { %>
 
-                        <table class="table table-wishlist table-mobile text-center" style="width: 920px">
+                        <table class="table table-wishlist text-center" style="width: 920px">
 
                                 <thead>
 
@@ -94,7 +94,7 @@
 
                                 </thead>
 
-                            <% walletData?.transaction.forEach((element , index) => { %>
+                            <% walletData?.transaction.slice().reverse().forEach((element , index) => { %>
                                     
                                 <tbody>
 
@@ -107,7 +107,7 @@
 
                                             <td class="text-primary">
 
-                                               $<%= element.amount %>
+                                               <%= element.amount %>
 
                                             </td>
 
@@ -138,9 +138,9 @@
 
                                 <div class="social-icons social-icons-sm mb-2">
 
-                                    <label class="social-label text-primary">Total:</label>
+                                    <label class="social-label text-primary">Total Balance:</label>
 
-                                   <p class="text-primary ">$<%= walletData?.balance %></p>
+                                   <p class="text-primary "><%= walletData?.balance %></p>
 
                                 </div><!-- End .soial-icons -->
 

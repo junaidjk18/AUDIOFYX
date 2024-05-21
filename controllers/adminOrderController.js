@@ -144,96 +144,95 @@ const returnorderManage = async (req, res) => {
 
     try {
 
-        console.log("hahha");
+        const ordId = req.query.id      
+        const proIdd = req.query.proId  
 
-        const ordId = req.query.id
+        console.log(ordId + "   " + proIdd);
 
-        console.log(ordId + "liii");
-
-        console.log(ordId + 'ajajhaha');
-
-        const findReturnOrd = await Order.find({ _id: ordId, "products.retruned": true });
+        await Order.findOneAndUpdate(
         
-        console.log(findReturnOrd + "aaaaaa");
+            { _id: ordId, "products._id": proIdd },
 
-        //  Itrating OrdId :-
+            { $set: { "products.$.orderProStatus": "returned" } },
 
-        for (const ordData of findReturnOrd) {
+            { new: true }
+        );
 
-            const userIdd = ordData.userId;     //  UserId
+        //  Find Single Product And Other Things :-
+        
+        const orderGot = await Order.findOne(
+        
+            {
+                _id: ordId,
+                "products._id": proIdd,
+                "products.retruned": true,
+            },
 
-            for (const element of ordData.products) {
+            { "products.$": 1, userId: 1, percentage: 1, orderAmount: 1 }
+          
+        );
 
-                if (element.retruned) {
+        console.log(orderGot + "ithhh");
 
-                    await Order.findOneAndUpdate(
-                  
-                        { _id: ordId, "products.productId": element.productId },
-                    
-                        { $set: { "products.$.orderProStatus": "returned" } },
-                    
-                        { new: true }
-                    
-                    );
-                    
-                    // Adding Stock Back :-
+        if (orderGot) {
+            
+            const ProIdd = orderGot.products[0].productId; 
 
-                    const findOrder = await Order.findOne(
-                  
-                        {
-                            _id: ordId,
-                            "products.productId": element.productId,
-                            "products.retruned": true,
-                      
-                        },
+            const findStock = orderGot.products[0].quantity;  
 
-                        { "products.$": 1 }
-                    
-                    );
-
-                    if (findOrder) {
-                      
-                        const findStock = element.quantity;
-
-                        await Product.findOneAndUpdate(
+            await Product.findOneAndUpdate(
+            
                         
-                            { _id: element.productId },
+                { _id: ProIdd },
 
-                            { $inc: { stock: findStock } }
+                { $inc: { stock: findStock } },
 
-                        );
+                { new: true }
 
-                        //  Money Managing :-
+            );
+
+            //  Money Managing :-
       
-                        const moneyDecreses = element.price;
+            let moneyDecreses = orderGot.products[0].price;
 
-                        console.log(moneyDecreses);
+            console.log(moneyDecreses + "moneyyyy");
       
-                        await Order.findOneAndUpdate(
-      
-                            { _id: ordId, "products.productId": element.productId },
-      
-                            { $inc: { orderAmount: -moneyDecreses } }
-      
-                        );
-                        
-                    };
+            //  There Is If Coupen Used Product Came (Menaging) :-
+            
+            if (orderGot.percentage >= 1) {
 
-                };
-
-                if (element.retruned && ordId.peyment !== 'COD') {
+                let newVal = Math.floor((orderGot.orderAmount) - (moneyDecreses - (moneyDecreses * orderGot.percentage / 100)));
                 
-                    await Wallet.findOneAndUpdate({ userId: userIdd }, { $inc: { balance: element.price }, $push: { transaction: { amount: element.price, creditOrDebit: 'credit' } } }, { new: true, upsert: true });
-                
-                }
+                await Order.findOneAndUpdate({ _id: ordId, 'products._id': proIdd }, { $set: { orderAmount: newVal } });
+
+            } else {
+
+                await Order.findOneAndUpdate({ _id: ordId, "products._id": proIdd }, { $inc: { orderAmount: -moneyDecreses } });
             }
 
-        }
+            if (orderGot.products[0].retruned && ordId.peyment !== 'COD') {
 
+                if (orderGot.percentage >= 1) {
+                    
+                    let newVall = Math.floor((moneyDecreses - (moneyDecreses * orderGot.percentage / 100)));
+
+                    console.log(newVall + "offer");
+                     
+                    await Wallet.findOneAndUpdate({ userId: orderGot.userId }, { $inc: { balance: newVall }, $push: { transaction: { amount: newVall, creditOrDebit: 'credit' } } }, { new: true, upsert: true });
+
+                } else {
+
+                    await Wallet.findOneAndUpdate({ userId: orderGot.userId }, { $inc: { balance: moneyDecreses }, $push: { transaction: { amount: moneyDecreses, creditOrDebit: 'credit' } } }, { new: true, upsert: true });
+
+                }
+                
+            }
+                        
+        };
+ 
     } catch (error) {
 
         console.log(error.message);
-
     }
 
 };

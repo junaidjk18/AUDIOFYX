@@ -85,7 +85,7 @@ user_route.post("/verifyEditAddress", address_controller.verifyEditAddress);
 user_route.get('/cart',cart_controller.cart)
 
 // add cart
-user_route.post('/addcart',cart_controller.addCart)
+user_route.post('/addCart',cart_controller.addCart)
 
 //cart edit
 
@@ -132,6 +132,12 @@ user_route.post('/deleteCheckAdd', checkout_controller.deleteAdd);
 //  razorPay (post)
 user_route.post("/razorPay", checkout_controller.RazorPay);
 
+user_route.post('/failedRazorpay' , checkout_controller.failRazorpay)
+
+user_route.post('/sucRazorpay' , checkout_controller.sucRazorpay)
+
+user_route.post('/changeStatus' , checkout_controller.changeProStatus)
+
 //  Wishlist Section :-
 
 //  wishList (get)
@@ -172,6 +178,10 @@ user_route.get('/contact',userController.contact)
 user_route.get('/resendOtp',userController.loadresendotp)
 
 user_route.post('/logout',userController.logout)
+
+user_route.get('*',(req,res)=>{
+    res.render('error.ejs')
+})
 
 
 module.exports = user_route

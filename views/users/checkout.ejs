@@ -241,7 +241,7 @@
 									<input type="text" class="form-control" name="coupen" required placeholder="coupon code" disabled >
 
 									<div class="input-group-append">
-										<button class="btn btn-outline-primary-2" id="btn" onclick="remove()" type="submit">Remove</button>
+										<button class="btn btn-outline-danger mb-3 " id="btn" onclick="remove()" type="submit">Remove</button>
 									</div><!-- .End .input-group-append -->
 
 								</div><!-- End .input-group -->
@@ -249,6 +249,7 @@
 							<% } %>
 
 								<span class="" id="g"></span>
+								
 							</form>
 						</div><!-- End .cart-discount -->
 
@@ -609,24 +610,33 @@
                                                             <td><a href="#">
                                                                 <%=product?.productId.name %>
                                                                 </a></td>
-                                                            <td>$<%=product.price%>.00</td>
+                                                            <td><%=product.price%>.00</td>
                                                         </tr>
 
                                                     <% }) %>
 
+													<% if (cartData?.coupenDisPrice > 0) { %>
+
+														<tr>
+															<td>Coupen Offer:</td>
+															<td class="text-success ">- <%= cartData?.coupenDisPrice %></td>
+														</tr>
+														
+												<%	} %>
                                                             <tr class="summary-subtotal">
                                                                 <td>Subtotal:</td>
-                                                                <td>$<%= cartData?.Total_price %>.00</td>
+                                                                <td><%= cartData?.Total_price %>.00</td>
                                                             </tr><!-- End .summary-subtotal -->
 
                                                             <tr>
                                                                 <td>Shipping:</td>
                                                                 <td>Free shipping</td>
                                                             </tr>
+															
 
                                                             <tr class="summary-total">
                                                                 <td>Total:</td>
-                                                                <td>$<%= cartData?.Total_price %>.00</td>
+                                                                <td><%= cartData?.Total_price %>.00</td>
                                                             </tr><!-- End .summary-total -->
 															
                                                 </tbody>
@@ -657,7 +667,7 @@
 
 													<h2 class="card-title">
 
-														<input disabled type="radio" name="payment" value="COD" class="bg-primary">
+														<input disabled type="radio" name="payment" value="COD" class="bg-primary" checked>
 
 														<label style="text-decoration: line-through;" for="">Cash on Delivery</label>
 
@@ -667,13 +677,43 @@
 													
 											<%	} %>
 
+											<% if (!walletDataa?.balance == 0 || walletDataa?.balance >= cartData?.Total_price) { %>
+												
+												<div class="card-header mt-1" id="heading-1">
+		
+												<h2 class="card-title">
+		
+													<input type="radio" name="payment" value="Wallet" class="bg-primary">
+		
+													<label for="">Wallet</label>
+		
+												</h2>
+		
+												</div>
+												
+										<%	} else { %>
+
+											<div class="card-header mt-1" id="heading-1">
+
+												<h2 class="card-title">
+
+													<input type="radio" name="payment" value="Wallet" class="bg-primary" disabled >
+
+													<label for="" style="text-decoration: line-through;">Wallet</label>
+
+												</h2>
+
+											</div>
+
+
+									<%	} %>
 
 
 													<div class="card-header mt-1" id="heading-1">
 
 														<h2 class="card-title">
 
-															<input type="radio" name="payment" value="Online" class="bg-primary" checked>
+															<input type="radio" name="payment" value="Online" class="bg-primary">
 
 															<label for="">Online Payment</label>
 
@@ -844,8 +884,29 @@ if(message.textContent == 'coupen'){
 		icon: "success",
 		title: "Coupen Applied",
 		showConfirmButton: false,
-  timer: 1500
-});
+  		timer: 1500
+	});
+
+} else if(message.textContent == 'used'){
+
+	Swal.fire({
+		position: "top-end",
+		icon: "error",
+		title: "Already Used",
+		showConfirmButton: false,
+  		timer: 1500
+	});
+
+
+} else if(message.textContent == 'aa'){
+
+	Swal.fire({
+		position: "top-end",
+		icon: "error",
+		title: "coupon cannot be applied to this total price",
+		showConfirmButton: false,
+  		timer: 2000
+	});
 
 }
   
@@ -1009,7 +1070,7 @@ if(msg.textContent == 'Address Edited'){
      
     })
 
-} else if(msg.textContent == 'Cart Empty'){
+} else if(msg.textContent == 'e'){
 
 
 	Swal.fire({
@@ -1022,7 +1083,7 @@ if(msg.textContent == 'Address Edited'){
 	});
 
 
-} else if(msg.textContent == 'No Address'){
+} else if(msg.textContent == 'er'){
 
 
 	Swal.fire({
@@ -1099,13 +1160,8 @@ const form = document.getElementById('myForm');
 
 			razorpayObject.on('payment.failed', (response) => {
 
-				// Swal.fire({
-
-				// 	icon: "error",
-				// 	title: "Oops...",
-				// 	text: "Your Payment Failed!",
-
-				// });
+				form.action = '/failedRazorpay'
+				form.submit()
 
 			});
 

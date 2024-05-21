@@ -17,15 +17,14 @@ const Order = require('../models/order');
 const Cart = require('../models/cart');
 
 // import wallet model :-
-const Wallet = require('../models/wallet')
+const Wallet = require('../models/wallet');
+const cart = require("../models/cart");
 
 //  loadOrder (Get Method) :-
 
 const loadOrder = async (req, res) => {
     
     try {
-
-        console.log("z")
 
         const categoryData = await Category.find({ is_Listed: true });
         
@@ -60,7 +59,6 @@ const orderView = async (req, res) => {
         const categoryData = await Category.find({ is_Listed: true });
 
         const order = await Order.findOne({ _id: req.query.id }).populate('products.productId')
-        console.log("iam the order..", order);
 
         res.render('orderDetails', { login: req.session.user, order, categoryData });
         
@@ -84,11 +82,17 @@ const orderKitty = async (req, res) => {
 
         const WalletData = await Wallet.findOne({ userId: userIdd });
 
-        const addresss = await Address.findOne({ userId: userIdd, 'addresss.status': true }, { 'addresss.$': 1 });
+        const addData = await Address.findOne({userId : userIdd})
+
+        if(!cartt.product.length == 0 || !cartt.product == null){
+
+        const addres = await Address.findOne({ userId: userIdd, 'addresss.status': true }, { 'addresss.$': 1 });
+
+        if(!addData.addresss.length == 0 || !addData){
 
         const product = cartt.product;
 
-        const { name, phone, address, pincode, locality, state, city } = addresss?.addresss?.[0] ?? {};
+        const { name, phone, address, pincode, locality, state, city } = addres?.addresss?.[0] ?? {};
 
         const orderGot = await Order.create({
 
@@ -112,13 +116,12 @@ const orderKitty = async (req, res) => {
             coupenDis : cartt.coupenDisPrice,
             percentage : cartt.percentage,
             payment: peymentmethod,
-            // orderStatus: 'Pending',
-
+            
         });
 
         req.session.orderGot = orderGot
 
-        if (req.body.peyment == 'wallet') {
+        if (req.body.payment == 'Wallet') {
 
             const balancee = WalletData.balance - cartt.Total_price
 
@@ -160,7 +163,7 @@ const orderKitty = async (req, res) => {
 
             //  Update Cart :-
 
-            const cartRemove = await Cart.updateOne({ userId: userIdd }, { $unset: { product: 1 }, $set: { Total_price: 0 } });
+            const cartRemove = await Cart.updateOne({ userId: userIdd }, { $unset: { product: 1 }, $set: { Total_price: 0 , percentage : 0 ,coupenDisPrice : 0} });
             
             if (cartRemove) {
 
@@ -173,6 +176,20 @@ const orderKitty = async (req, res) => {
             }
             
         };
+
+    }else{
+
+        req.flash('flash' , 'er')
+        res.redirect('/checkout')
+
+    }
+
+    } else {
+
+        req.flash('flash' , 'e')
+        res.redirect('/checkout')
+
+    }
         
     } catch (error) {
 
@@ -276,8 +293,6 @@ const orderCancel = async (req, res) => {
 const returnOrd = async (req, res) => {
     
     try {
-
-        console.log("Njan");
 
         const { proId, ordId,  reason } = req.body;
         const userIdd = req.session.user._id

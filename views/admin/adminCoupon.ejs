@@ -39,7 +39,7 @@
 
                        <form action="/admin/addCoupen" id="couponForm" method="post" enctype="multipart/form-data" onsubmit="return validateForm()">
 
-                          <p id="msg" hidden class="text-danger "></p>
+                          <p id="msggg" hidden class="text-danger"><%= msgg %></p>
 
                           <div class="mb-3">
                             <label for="couponName" class="form-label">Name</label>
@@ -50,7 +50,7 @@
 
                           <div class="mb-3">
                             <label for="couponImage" class="form-label">Image</label>
-                            <input type="file" class="form-control" id="couponImage" name="image" accept="image/*">
+                            <input type="file" class="form-control" id="couponImage" name="image" accept="image/*" required>
                           </div>
 
                           <div class="mb-3 d-flex">
@@ -58,13 +58,6 @@
                               <label for="min" class="form-label">Min</label>
                               <input type="number" class="form-control w-50" min="1" name="min" id="min" placeholder="min">
                               <p id="minimum" class="text-danger "></p>
-
-                            </div>
-
-                            <div class="ms-3">
-                              <label for="max" class="form-label">Max</label>
-                              <input type="number" class="form-control w-50 ms-3" min="1" name="max" id="max" placeholder="max">
-                              <p id="maximum" class="text-danger "></p>
 
                             </div>
                           </div>
@@ -95,7 +88,7 @@
                     <br><br>
 
                   <div class="row">
-
+ 
                     <% coupenData.slice().reverse().forEach(val => { %>
 
                         <div class="flip-card col-lg-3" >
@@ -111,7 +104,7 @@
                               <div class="flip-card-back">
 
                                 <p class="title text-white pb-3 "><%= val.name %></p>
-                                <h6 class="text-dark" style="font-weight: bold;"><%= val.discount %>% OFF</h6>
+                                <h6 class="text-dark" style="font-weight: bold;"><%= val.discountt %>% OFF</h6>
                                 <p class="text-dark">Coupon Code : <%= val.coupenId %></p>
 
                                 <div style="text-align: center;">
@@ -153,9 +146,11 @@
 
   //  AddCoupenSweetAlert :-
 
-  const msg = document.getElementById('msg');
+  const msg = document.getElementById('msggg');
 
-  if(msg.textContent.trim() == 'good'){
+  console.log(msg);
+
+  if(msg.textContent == 'good'){
 
     Swal.fire({
 
@@ -244,7 +239,7 @@
     
     document.getElementById('name').textContent = '';
     document.getElementById('minimum').textContent = '';
-    document.getElementById('maximum').textContent = '';
+    // document.getElementById('maximum').textContent = '';
     document.getElementById('dis').textContent = '';
 
     // Get form inputs
@@ -252,7 +247,7 @@
     var couponName = document.getElementById('couponName').value.trim();
     var discount = document.getElementById('discount').value.trim();
     var minimum = document.getElementsByName('min')[0].value.trim();
-    var maximum = document.getElementsByName('max')[0].value.trim();
+    // var maximum = document.getElementsByName('max')[0].value.trim();
 
     // Validation
 
@@ -270,13 +265,13 @@
       isValid = false;
     }
 
-    if (isNaN(maximum) || maximum === '' || maximum <= 0) {
-      document.getElementById('maximum').textContent = 'must be a positive number';
-      isValid = false;
-    }
+    // if (isNaN(maximum) || maximum === '' || maximum <= 0) {
+    //   document.getElementById('maximum').textContent = 'must be a positive number';
+    //   isValid = false;
+    // }
 
-    if (isNaN(discount) || discount === '' || discount < 0 || discount > 99) {
-      document.getElementById('dis').textContent = 'Discount rate maximujm upto 99 %';
+    if (isNaN(discount) || discount === '' || discount < 0 || discount > 60) {
+      document.getElementById('dis').textContent = 'Discount rate maximujm upto 60 %';
       isValid = false;
     }
 

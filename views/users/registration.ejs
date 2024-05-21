@@ -136,11 +136,16 @@ const msg = document.getElementById('msg')
 
     function validateInput(input) {
 				
-                var inputValue = input.value;
-                var sanitizedInput = inputValue.replace(/[^a-zA-Z]/g, '');
-                input.value = sanitizedInput;
-            }
+        var inputValue = input.value;
+        var sanitizedInput = inputValue.replace(/[^a-zA-Z]/g, '');
+        input.value = sanitizedInput;
+    }
     
+
+
+
+
+
             function validateForm() {
     
                 var fullName = document.getElementById('register-name-2').value;

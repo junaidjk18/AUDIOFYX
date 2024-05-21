@@ -26,7 +26,7 @@ const coupenSchema = mongoose.Schema({
     to: {
         
         type: Number,
-        required: true
+        default : 100,
 
     },
 

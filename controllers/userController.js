@@ -70,7 +70,7 @@ const insertUser = async(req,res)=>{
           
             const OTPP = generateOTP();
             console.log('First OTP :-' + OTPP);
-            sendotpmail(req.body.name,req.body.email,OTPP,res);
+            sendotpmail(req.body.name,req.body.email,OTPP,res,req);
 
         }else{
 
@@ -157,7 +157,7 @@ const verifyOtp=async(req,res)=>{
 
     }else{
         req.flash('flash' , "Invalid OTP!!!")
-        res.redirect(`/otp?email=${querymail}`)
+        res.redirect(`/otp?email=${querymail}&&time=${req.session.time}`)
     }
 
     }catch(error){
@@ -167,7 +167,7 @@ const verifyOtp=async(req,res)=>{
 }
 
 
-const sendotpmail = async (name,email,otpp,res)=>{
+const sendotpmail = async (name,email,otpp,res , req)=>{
 
         console.log('vannood');
 
@@ -218,9 +218,11 @@ const sendotpmail = async (name,email,otpp,res)=>{
 
         await newuserotp.save();  //otp saved in dbs
 
+        let timee = Date.now()
+        req.session.time = timee
         // calling otp page and also passing query to the page
 
-        res.redirect(`/otp?email=${email}`);
+        res.redirect(`/otp?email=${email}&&time=${timee}`);
 
       
     } catch (error) {
@@ -248,7 +250,7 @@ const loadresendotp = async(req,res)=>{
             
             console.log(generatedOTP + 'Re-send otp');
 
-            await sendotpmail(usersession.name,usersession.email,generatedOTP ,res)
+            await sendotpmail(usersession.name,usersession.email,generatedOTP ,res,req)
 
             setTimeout(async ()=>{   //deleting otp from db
 
@@ -531,7 +533,23 @@ const priceLowToHigh = async(req,res)=>{
 
         if(status)
         {
-            const smallToHigh = await product.find({status : true}).sort({price : 1}).populate('category')
+            const smallToHigh = await product.find({status : true }).sort({price : 1}).populate('category')
+
+            // const smallToHigh = await product.aggregate([
+            //     { $match: { status: true } },
+            //     { $lookup: {
+            //         from: 'categories', // The name of the category collection
+            //         localField: 'category',
+            //         foreignField: '_id',
+            //         as: 'category'
+            //       }
+            //     },
+            //     { $unwind: '$category' },
+            //     { $match: { 'category.name': 'EARBUDS' } },
+            //     { $sort: { price: 1 } }
+            //   ]);
+
+        console.log(smallToHigh);
 
             res.send(smallToHigh)
         }
