@@ -104,7 +104,7 @@
 
                                                   <div class="col-lg-6">
                                                       <label for="phone" class="col-form-label text-black">Mobile Number *</label>
-                                                      <input type="text" class="form-control" name="phone" id="phonee" placeholder="Enter your Mobile" required>
+                                                      <input type="phoneError" class="form-control" name="phone" id="phonee" placeholder="Enter your Mobile" required>
                                                   </div>
 
                                                   <div class="col-lg-6">
@@ -148,7 +148,7 @@
 
                                                 <input type="hidden" value="<%= userData._id %>" id="validUserId">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                <button type="submit" class="btn btn-primary" onclick="validateForm();">Add</button>
+                                                <button type="submit" class="btn btn-primary" onclick="m();">Add</button>
 
                                               </div>
 
@@ -466,7 +466,7 @@ function deleteAddress(id , addId){
 function editAddress(edit){
   
   const namee = document.getElementById('name')
-  const phonee = document.getElementById('phone')
+  const phonee = document.getElementById('phonee')
   const localityy = document.getElementById('locality')
   const pincodee = document.getElementById('pincode')
   const addressss = document.getElementById('addresssss')
@@ -497,48 +497,89 @@ function editAddress(edit){
 
 //  Validation For Add Address :-
 
-function validateForm() {
+// function validateForm() {
   
-  const validId = document.getElementById('validUserId').value
+//   const validId = document.getElementById('validUserId').value
 
-  console.log(validId);
+//   console.log(validId);
 
-  var inputs = document.getElementById("addform").querySelectorAll("input, textarea")
+//   var inputs = document.getElementById("addform").querySelectorAll("input, textarea")
 
-  var isValid = true
+//   var isValid = true
 
-    inputs.forEach(function(input) {
+//     inputs.forEach(function(input) {
 
-      if (input.value.trim() === "") {
+//       if (input.value.trim() === "") {
 
-        isValid = false;
-        return;
-      }
+//         isValid = false;
+//         return;
+//       }
 
-    });
+//     });
 
-    if (!isValid) {
+//     if (!isValid) {
 
-      event.preventDefault(); 
+//       event.preventDefault(); 
             
-      Swal.fire({
+//       Swal.fire({
 
-        title: "Oops!!!",
-        text: "Please Fill All Input Fields",
-        icon: "error"
+//         title: "Oops!!!",
+//         text: "Please Fill All Input Fields",
+//         icon: "error"
 
-      })
+//       })
 
-    } else {
+//     } else {
 
-      var addressInput = document.getElementById("add")
+//       var addressInput = document.getElementById("add")
 
-      event.preventDefault();
+//       event.preventDefault();
 
-      addAddress(validId);
-    }
+//       addAddress(validId);
+//     }
 
-}
+// }
+
+function m() {
+		  const phoneInput = document.getElementById('phone');
+		  const pincodeInput = document.getElementById('pincode');
+		  const cityInput = document.getElementById('city');
+		  const stateInput = document.getElementById('state');
+	  
+		  // Phone Number Validation
+		  if (!/^\d{10}$/.test(phoneInput.value.trim())) {
+			document.getElementById('phoneError').innerText = 'Please enter a valid 10-digit phone number';
+			return false;
+		  } else {
+			document.getElementById('phoneError').innerText = '';
+		  }
+	  
+		  // Pincode Validation
+		  if (!/^\d{6}$/.test(pincodeInput.value.trim())) {
+			document.getElementById('pincodeError').innerText = 'Please enter a valid 6-digit pincode';
+			return false;
+		  } else {
+			document.getElementById('pincodeError').innerText = '';
+		  }
+	  
+		  // City Validation
+		  if (!/^[A-Za-z\s]+$/.test(cityInput.value.trim())) {
+			document.getElementById('cityError').innerText = 'Please enter a valid city name';
+			return false;
+		  } else {
+			document.getElementById('cityError').innerText = '';
+		  }
+	  
+		  // State Validation
+		  if (!/^[A-Za-z\s]+$/.test(stateInput.value.trim())) {
+			document.getElementById('stateError').innerText = 'Please enter a valid state name';
+			return false;
+		  } else {
+			document.getElementById('stateError').innerText = '';
+		  }
+	  
+		  return true;
+		}
 
 </script>
 
