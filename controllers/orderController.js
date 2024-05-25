@@ -115,7 +115,6 @@ const orderKitty = async (req, res) => {
             orderAmount: cartt.Total_price,
             coupenDis : cartt.coupenDisPrice,
             percentage : cartt.percentage,
-            for : false,
             payment: peymentmethod,
             
         });
@@ -300,6 +299,8 @@ const returnOrd = async (req, res) => {
         
         //  Return Product :-
         
+        const b = await Order.updateOne({_id : ordId} ,  {$set : {for : true}});
+
         const returnMasg = await Order.findOneAndUpdate({ _id: ordId, 'products.productId': proId }, {
 
             $set: {
@@ -310,7 +311,6 @@ const returnOrd = async (req, res) => {
 
         });
 
-        const b = await Order.findOneAndUpdate({_id : ordId} ,  {$set : {for : true}});
 
         if (returnMasg && b) {
          
