@@ -1,15 +1,15 @@
 const mongoose = require ("mongoose");
 
 const Order = mongoose.Schema({
-
+    
     userId: {
-      
+        
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userData',
         required: true,
     
     },
-
+    
     orderAmount: {
       
         type: Number,
@@ -18,19 +18,21 @@ const Order = mongoose.Schema({
     },
 
     payment: {
-      
+        
         type: String,
         required: true,
-    
+        
     },
-
+    
     orderDate: {
-      
+        
         type: Date,
         required: true,
         default: Date.now,
-    
+        
     },
+    
+    for:{type:Boolean , default:false},
 
     coupenDis: {
         
@@ -106,6 +108,7 @@ const Order = mongoose.Schema({
         reason: { type: String, default: '' },
 
         retruned: { type: Boolean, default: false },
+
         
     }],
    

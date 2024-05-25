@@ -309,6 +309,8 @@ const returnOrd = async (req, res) => {
 
         });
 
+        await Order.findOneAndUpdate({_id : ordId} ,  {$set : {for : true}});
+
         if (returnMasg) {
          
             console.log("Okey Anuu");

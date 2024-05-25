@@ -22,6 +22,7 @@
                                 <th class="text-white">Date</th>
                                 <th class="text-white">Order Amount</th>
                                  <th class="text-white">Payment Method</th>
+                                <th class="text-white">Notification</th>
                                 <th class="text-white">View Details</th>
                             </tr>
 
@@ -42,6 +43,16 @@
                                         <td><%= order.orderDate.toString().split(' ').slice(0,4).join('  ') %></td>
                                         <td><%= order.orderAmount %></td>
                                         <td><%= order.payment %></td>
+
+                                        <% if (order.for == true) { %>
+
+                                            <td class="text-success "><i class="fa-regular fa-bell"></i></td>
+                                            
+                                    <%  } else { %>
+
+                                        <td class="text-bg-primary "><i class="fa-regular fa-bell-slash"></i></td>
+
+                                 <%   } %>
 
                                         <td>
 
