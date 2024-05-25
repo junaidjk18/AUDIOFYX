@@ -136,15 +136,13 @@ const productStatus = async (req, res) => {
 const editProduct = async (req, res) => {
 try {
   console.log("hiii edit product")
+  console.log(req.files);
     const produt= await Products.findOne({_id:req.params.id});
     const {product,price,Discountprice,stock,description}=req.body
 
 console.log(product);
 
     let imag=[];
-
-
-    
 
 for (let i = 0; i < 3; i++) {
     const key = `k${i}`;
@@ -153,7 +151,7 @@ for (let i = 0; i < 3; i++) {
       imag.push(produt.image[i]);
     } else {
         imag.push(req.files[`image${i}`][0].filename);
-        fs.unlinkSync(path.join(__dirname,'../public/product_Images',produt.image[i]))
+        fs.unlinkSync(path.join(__dirname,'../public/productImage',produt.image[i]))
     }
 }
     produt.image=imag;
