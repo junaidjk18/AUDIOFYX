@@ -115,6 +115,7 @@ const orderKitty = async (req, res) => {
             orderAmount: cartt.Total_price,
             coupenDis : cartt.coupenDisPrice,
             percentage : cartt.percentage,
+            for : false,
             payment: peymentmethod,
             
         });
@@ -309,9 +310,9 @@ const returnOrd = async (req, res) => {
 
         });
 
-        await Order.findOneAndUpdate({_id : ordId} ,  {$set : {for : true}});
+        const b = await Order.findOneAndUpdate({_id : ordId} ,  {$set : {for : true}});
 
-        if (returnMasg) {
+        if (returnMasg && b) {
          
             console.log("Okey Anuu");
          
